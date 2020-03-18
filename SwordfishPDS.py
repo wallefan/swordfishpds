@@ -5,7 +5,10 @@ import os
 import threading
 import time
 import sys
-import platform
+import csv
+import urllib.request
+import tempfile
+import zipfile
 
 THREADS = 1
 
@@ -142,6 +145,8 @@ class Downloader:
         self.queue.put(task)
 
 class ArbitraryURLDownloader(Downloader):
+    def __init__(self):
+        super().__init__(None, None, 'files')
     def _worker(self):
         import urllib.request
         while True:
@@ -149,6 +154,11 @@ class ArbitraryURLDownloader(Downloader):
             if item is None:
                 return
             url, dest = item
+            if os.path.isfile(dest):
+                # the path we have been passed is a file path, not a directory path,
+                # and it points to a file that already exists on disk.
+                # Resume download if possible.
+                req = urllib.request.Request(url, headers={'User-Agent': 'SwordfishPDS-1.0'})
             # Don't trust that the last part of the URL is the filename.  It almost never is.
             req=urllib.request.Request(url, headers={'User-Agent':'SwordfishPDS-1.0'})
             with urllib.request.urlopen(req) as resp:
@@ -156,7 +166,7 @@ class ArbitraryURLDownloader(Downloader):
                 # figure out what we're supposed to save the file as.
                 if not os.path.isdir(dest):
                     # then it's that.
-                    pass
+                    filename = dest
                 else:
                     filename = None
                     if content_disposition:
@@ -168,7 +178,7 @@ class ArbitraryURLDownloader(Downloader):
                         # server didn't tell us the filename.
                         # assume it's embedded in the URL somewhere.
                         import urllib.parse
-                        filename = urllib.parse.urlsplit(url).
+                        filename = urllib.parse.urlsplit(url)
 
 def copyfileobj(fin, fout,filename='',sz=0):
     buffer = bytearray(64*1024)
@@ -206,65 +216,99 @@ threading.Thread(target=print_thread, args=(printq,), daemon=True).start()
 ##################################################
 ############ FILE FORMAT #########################
 ##################################################
+#
+# def run(f, outdir):
+#     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
+#     gdrive_downloader = Downloader('drive.google.com','/uc?export=download&id={0}', 'Google Drive files')
+#     surplus_mods=[]
+#     with f:
+#         chunk_header = f.read(4)
+#         while True:
+#             if chunk_header == 'FIN':
+#                 break
+#             if chunk_header == 'MODS':
+#                 mods_dir = os.path.join(outdir, '.minecraft', 'mods')
+#                 all_mods = []
+#                 mod_downloader.start(THREADS)
+#                 while True:
+#                     s = f.read(4)
+#                     if not s.isdigit():
+#                         chunk_header = s
+#                         break
+#                     a = int(s)
+#                     s = f.read(3)
+#                     assert s.isdigit(), s
+#                     b = int(s)
+#                     filename = f.readline().strip()
+#                     mod_downloader.put(a, b, filename, mods_dir)
+#                     all_mods.append(filename)
+#                 # we don't have to worry about a race condition here because none of the files the other thread
+#                 # is creating are files we're interested in.
+#                 for mod in os.listdir(mods_dir):
+#                     if mod.endswith('.jar') and mod not in all_mods:
+#                         surplus_mods.append(mod)
+#                 # We will deal with surplus_mods later, at the end of the file.
+#             elif chunk_header == 'CONF':
+#                 print('conf')
+#                 filename = os.path.join(outdir, '.minecraft', 'config', f.readline().strip())
+#                 # I have no idea how to handle the error in this case, so just let it propagate.
+#                 line_count = int(f.readline().strip())
+#                 with open(filename, 'w') as fout:
+#                     fout.writelines(f.readline() for _ in range(line_count))
+#                 chunk_header = f.read(4)
+#             elif chunk_header == 'GDRV':
+#                 gdrive_downloader.start(THREADS)
+#                 while True:
+#                     line = f.readline().strip()
+#                     if not line:
+#                         break
+#                     gdid, sep, path = line.partition('->')
+#                     gdid = gdid.strip()
+#                     assert sep, 'illegal gdrive directive %s' % line[:20]
+#                     if ';' in path:
+#                         path = path[:path.find(';')]
+#                     path = os.path.join(outdir, path.strip().replace('/',os.pathsep))
+#                     os.makedirs(path, exist_ok=True)
+#                     gdrive_downloader.put(gdid, path)
+#
+#             else:
+#                 raise AssertionError('Unknown chunk header "%s"' % chunk_header)
+#     gdrive_downloader.stop()
+#     mod_downloader.stop()
+
+def zip_download_worker(url, output, list_of_failed_downloads):
+    import tempfile
+    try:
+        with tempfile.SpooledTemporaryFile() as f:
+            with urllib.request.urlopen(url) as fin:
+                assert fin.code == 200
+                copyfileobj(fin, f)
+            f.seek(0)
+            with zipfile.ZipFile(f) as zf:
+                zf.extractall(output)
+    except Exception as e:
+        list_of_failed_downloads.append((url, e))
 
 def run(f, outdir):
     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
-    gdrive_downloader = Downloader('drive.google.com','/uc?export=download&id={0}', 'Google Drive files')
-    surplus_mods=[]
+    mods_dir = os.path.join(outdir, '.minecraft', 'mods')
+    os.makedirs(mods_dir, exist_ok=True)
+    other_stuff_downloader = ArbitraryURLDownloader()
+    failed_zip_downloads = []
     with f:
-        chunk_header = f.read(4)
-        while True:
-            if chunk_header == 'FIN':
-                break
-            if chunk_header == 'MODS':
-                mods_dir = os.path.join(outdir, '.minecraft', 'mods')
-                all_mods = []
+        for type, arg, filename_or_directory in csv.reader(f):
+            if type == 'MOD':
                 mod_downloader.start(THREADS)
-                while True:
-                    s = f.read(4)
-                    if not s.isdigit():
-                        chunk_header = s
-                        break
-                    a = int(s)
-                    s = f.read(3)
-                    assert s.isdigit(), s
-                    b = int(s)
-                    filename = f.readline().strip()
-                    mod_downloader.put(a, b, filename, mods_dir)
-                    all_mods.append(filename)
-                # we don't have to worry about a race condition here because none of the files the other thread
-                # is creating are files we're interested in.
-                for mod in os.listdir(mods_dir):
-                    if mod.endswith('.jar') and mod not in all_mods:
-                        surplus_mods.append(mod)
-                # We will deal with surplus_mods later, at the end of the file.
-            elif chunk_header == 'CONF':
-                print('conf')
-                filename = os.path.join(outdir, '.minecraft', 'config', f.readline().strip())
-                # I have no idea how to handle the error in this case, so just let it propagate.
-                line_count = int(f.readline().strip())
-                with open(filename, 'w') as fout:
-                    fout.writelines(f.readline() for _ in range(line_count))
-                chunk_header = f.read(4)
-            elif chunk_header == 'GDRV':
-                gdrive_downloader.start(THREADS)
-                while True:
-                    line = f.readline().strip()
-                    if not line:
-                        break
-                    gdid, sep, path = line.partition('->')
-                    gdid = gdid.strip()
-                    assert sep, 'illegal gdrive directive %s' % line[:20]
-                    if ';' in path:
-                        path = path[:path.find(';')]
-                    path = os.path.join(outdir, path.strip().replace('/',os.pathsep))
-                    os.makedirs(path, exist_ok=True)
-                    gdrive_downloader.put(gdid, path)
-
-            else:
-                raise AssertionError('Unknown chunk header "%s"' % chunk_header)
-    gdrive_downloader.stop()
-    mod_downloader.stop()
+                assert arg.isdigit() and len(arg) <= 7
+                a = int(arg[:-3])
+                b = int(arg[-3:])
+                mod_downloader.put(a, b, filename_or_directory, mods_dir)
+            elif type == 'Zipfile':
+                threading.Thread(target=zip_download_worker, args=(arg, filename_or_directory, failed_zip_downloads)) \
+                    .start()
+            elif type == 'Download':
+                other_stuff_downloader.start(THREADS)
+                other_stuff_downloader.put(arg, filename_or_directory)
 
 def prompt_yn(prompt):
     while True:
@@ -456,13 +500,44 @@ def ask_user(options, prompt='Choose an option: '):
             return choice - 1
 
 if __name__=='__main__':
-    multimc_dir = locate_multimc_dir()
-    print("Welcome to SwordfishPDS, Swordfish Engineering Corp's very own modpack distribution system!")
-    if len(sys.argv) == 1:
-        f, pack_name = connect(('localhost', 21617))
-        minecraft_folder = createMinecraftFolder(multimc_dir, pack_name)
-        run(f, minecraft_folder)
-        print('=====================')
-        print('All done!  Modpack successfully installed.')
-        print('You may need to restart MultiMC before the changes take effect.')
+    output_dir = None
+    file = None
+    connect_ip = '73.71.247.208'
+    connect_port = 21617
+    for arg in sys.argv[1:]:
+        if os.path.isdir(arg):
+            output_dir = arg
+        elif os.path.isfile(arg):
+            file = open(arg)
+        elif all(ch in '1234567890.:' for ch in arg):
+            if ':' in arg:
+                connect_ip, connect_port = arg.split(':')
+                connect_port = int(connect_port)
+            else:
+                connect_ip = arg
+        else:
+            print('Usage:')
+            print('SwordfishPDS.py [{path to csv file|server_ip[:server_port]] [output_directory]')
+            print('If no CSV file is provided, the script will connect to the specified server,')
+            print('download a list of CSV files, and ask you to choose one.  If no server is')
+            print('specified, the hardcoded default is 73.71.247.208 (the default server IP for')
+            print('all SFE modpacks).  Port, if omitted, defaults to 21617.')
+            exit()
+    # locate_multimc_dir() sometimes requires user intervention, so for the sake of seamlessness, skip it
+    # if an output dir is specified.  Also do it before potentially connecting to the server.
+    if output_dir is None:
+        multimc_dir = locate_multimc_dir()
 
+    pack_name = None
+    if file is not None:
+        f = open(file)
+        pack_name = os.path.splitext(os.path.basename(file))[0]
+    else:
+        f, pack_name = connect((connect_ip, connect_port))
+
+    if output_dir is None:
+        output_dir = createMinecraftFolder(multimc_dir, pack_name)
+    run(f, output_dir)
+    print('=====================')
+    print('All done!  Modpack successfully installed.')
+    print('You may need to restart MultiMC before the changes take effect.')
