@@ -1,0 +1,111 @@
+MODS2888880journeymap-1.12.2-5.7.0.jar
+2849567JustEnoughCalculation-1.12.2-3.2.3.jar
+2731963Patchouli-1.0-20.jar
+2878931LibVulpes-1.12.2-0.4.2-74-universal.jar
+2645992Guide-API-1.12-2.1.8-63.jar
+2713386Mantle-1.12-1.3.3.55.jar
+2715198Numina-1.12.2-1.0.38.jar
+2887707AdvancedRocketry-1.12.2-1.7.0-208-universal.jar
+2682821Morph-1.12.2-7.1.3.jar
+2847112jei_1.12.2-4.15.0.293.jar
+2745852xnet-1.12-1.8.2.jar
+2634368ocxnetdriver-1.0.3-b17.jar
+2708030YNot-0.2.4.jar
+2743885ModularPowersuits-1.12.2-1.0.46.jar
+2849905advancedsolars-1.0.5.jar
+2799209IC2Classic+1.12-1.5.4.5.jar
+2661985ICBM-classic-1.12.2-3.3.0b63.jar
+2887047buildcraft-all-7.99.24.5.jar
+2828357OpenComputers-MC1.12.2-1.7.5.192.jar
+2645185tinkersoc-0.6.jar
+2754959openscreens-1.12.2-1.0.1.jar
+2842054Commons0815-1.12.2-1.3.7.jar
+2824169ocdevices-MC1.12.2-1.0.0-44.jar
+2832564CTM-MC1.12.2-1.0.1.30.jar
+2745846mcjtylib-1.12-3.5.4.jar
+2667280theoneprobe-1.12-1.4.28.jar
+2623090RedstoneFlux-1.12-2.1.0.6-universal.jar
+2861573rftools-1.12-7.73.jar
+2705813rftoolsctrl-1.12-2.0.2.jar
+2707390rftoolsdim-1.12-5.71.jar
+2704404rftoolspower-1.12-1.2.0.jar
+2714505albedo-1.12.2-1.1.0.jar
+2777004OpenLights-MC1.12.2-0.1.0.8.jar
+2720655chiselsandbits-14.33.jar
+2315933ChiselsBytes-1.9.4-0.4.jar
+2813538Chisel-MC1.12.2-1.0.1.44.jar
+2859433CustomMobSpawner-3.11.5.jar
+2785465Forgelin-1.8.4.jar
+2761706alib-1.0.12.jar
+2889940alchemistry-1.12.2-41.jar
+2838090CraftTweaker2-1.12-4.1.20.jar
+2626135car-1.12.2-1.2.12.jar
+2661985ICBM-classic-1.12.2-3.3.0b63.jar
+2777813Decocraft-2.6.3_1.12.2.jar
+2789696SimplyJetpacks2-1.12.2-2.2.14.67.jar
+2544919immersivepetroleum-1.12.2-1.1.9.jar
+2882794conarm-1.12.2-1.2.5.4.jar
+2815771armoryexpansion-1.4.1.jar
+2853541NuclearCraft-2.18o-1.12.2.jar
+2716799notenoughrtgs-1.2a.jar
+2886605ElectroblobsWizardry-4.2.9-MC1.12.2.jar
+2518667Baubles-1.12-1.5.2.jar
+2612429SeedsForWizardry+1.0+For+MC+Forge+1.12.2.jar
+2650308realfilingcabinet-1.0.1.jar
+2705859ComPatchedStorage-1.12.2-1.6.0.jar
+2899863pneumaticcraft-repressurized-1.12.2-0.11.11-390.jar
+2857064Controlling-3.0.8.jar
+2747935ironchest-1.12.2-7.0.72.847.jar
+2822288BloodMagic-1.12.2-2.4.3-105.jar
+2882804Roots-1.12.2-3.0.25.jar
+2842510BiomesOPlenty-1.12.2-7.0.1.2444-universal.jar
+2480458Snad-1.12.1-1.7.09.16a.jar
+2492586RoguelikeDungeons-1.12.2-1.8.0.jar
+2862651CookingForBlockheads_1.12.2-6.5.0.jar
+2574880BiblioCraft[v2.4.5][MC1.12.2].jar
+2836904NomadicTents-1.12.2-9.5.2.jar
+2671230NoMoreRecipeConflict-0.13(1.12.2).jar
+2764292yoyos_1.12.2-1.3.3.25.jar
+2733014moarboats-1.12.2-4.1.2.1.jar
+2856123AdPoles-1.12.2-2.0.2.0-build.0435.jar
+2706762astikorcarts-1.12.2-0.1.2.7.jar
+2553810EnchantingTable-1.12-1.1.3.jar
+2537151Vials-MC1.12-1.2.1.5.jar
+2568865noRecipeBook_v1.2.2formc1.12.2.jar
+2679314desirepaths-1.12.1-1.2.8.jar
+2834907BetterDiving-1.12.2-1.4.14.jar
+2904183BloodArsenal-1.12.2-2.2.2-31.jar
+2893716tinkersdefense-1.4.2.33.jar
+2652196Pewter-1.4.3.jar
+2531068FenceOverhaul-1.3.4.jar
+2892340SoundFilters-0.12_for_1.12.jar
+2676457Ping-1.12.2-1.4.5.jar
+2902483TConstruct-1.12.2-2.13.0.183.jar
+2801262iChunUtil-1.12.2-7.2.2.jar
+2856114ForgeEndertech-1.12.2-4.5.0.0-build.0435.jar
+2865502mysticalworld-1.12.2-1.7.1.jar
+2865499mysticallib-1.12.2-1.6.0.jar
+2799143ImmersiveEngineering-0.12-92.jar
+2850338logisticspipes-0.10.2.216.jar
+2902920coroutil-1.12.1-1.2.37.jar
+2572444CompactStorage-3.1-12.jar
+2685154PTRLib-1.0.4.jar
+2779848CodeChickenLib-1.12.2-3.2.3.358-universal.jar
+2715788ThermalFoundation-1.12.2-2.6.3.27-universal.jar
+2715789ThermalExpansion-1.12.2-5.5.4.43-universal.jar
+2716138ThermalDynamics-1.12.2-2.5.5.21-universal.jar
+2715787ThermalInnovation-1.12.2-0.3.3.12-universal.jar
+2880863UniDict-1.12.2-2.9.6.jar
+GDRV1ikKMpMfE2HCceIIdk1VaUbYEAq0q5ZqA -> Flan;modern weapons pack
+
+CONF Mods I'm considering.txt
+8
+2886644TFSpellPack-1.0-MC1.12.2.jar (addon for EBWizardry and TwilightForest)
+2845920ExtraSpells-1.12.2-1.1.4.jar (addon for EBWizardry)
+2736248PotionCore-1.8_for_1.12.2.jar (addon for ExtraSpells)
+2784047Arcane+Essentials-0.9.2.jar   (addon for EBWizardry)
+2730177GameStages-1.14.2-4.0.6.jar   (Alchemistry has integration for this)
+2866027extraalchemy-0.5.3.jar        (addon for ExtraSpells)
+2728693minerva-library-1.0.13.jar    (Extra Alchemy depends on this)
+2561667ArtsEffectsSpellPack.jar      (addon for EBWizardry)
+FIN
