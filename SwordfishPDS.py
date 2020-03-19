@@ -103,7 +103,7 @@ def _strip_dot_minecraft(filename):
     if SERVER_MODE:
         if filename.startswith('.minecraft'):
             filename = filename[10:]
-            if filename[0] == '/':
+            if filename.startswith('/'):
                 filename = filename[1:]
     return filename
 
@@ -372,6 +372,9 @@ def run(f, outdir, created_modpack=True):
                 if os.path.exists(filename):
                     os.rename(filename, filename + '.disabled')
 
+    for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
+        _dl.stop()
+
     surplus_mods = []
     installed_mods = os.listdir(mods_dir)
     for mod in installed_mods:
@@ -379,9 +382,6 @@ def run(f, outdir, created_modpack=True):
             surplus_mods.append(mod)
         elif mod in dud_mods:
             dud_mods.remove(mod)
-
-    for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
-        _dl.stop()
 
     any_ = False
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
@@ -657,7 +657,7 @@ if __name__=='__main__':
     for arg in sys.argv[1:]:
         if arg == '--server-mode':
             SERVER_MODE = True
-        if os.path.isdir(arg):
+        elif os.path.isdir(arg):
             output_dir = arg
         elif os.path.isfile(arg):
             file = arg
