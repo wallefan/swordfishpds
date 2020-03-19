@@ -6,7 +6,7 @@ import shutil
 class Handler(socketserver.StreamRequestHandler):
     def handle(self):
         for item in os.listdir('.'):
-            if item.endswith('.txt'):
+            if item.endswith('.csv'):
                 self.wfile.write((item[:-4]+'\n').encode('ascii'))
         self.wfile.write(b'\n')
         requestedPack = self.rfile.readline().decode('ascii').strip()+'.txt'
