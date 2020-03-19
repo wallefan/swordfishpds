@@ -15,6 +15,11 @@ import zipfile
 ZIP_THREADS = 5
 THREADS = 3
 
+
+opener = urllib.request.build_opener()
+opener.add_handler(urllib.request.HTTPCookieProcessor())
+urllib.request.install_opener(opener)
+
 # This global variable becomes true when we are done prompting the user about things,
 # and other threads are now free to start writing to stdout.
 allow_other_threads_to_print = False
@@ -278,8 +283,8 @@ def run(f, outdir, created_modpack=True):
     zip_downloader = ZipDownloader()
     other_stuff_downloader = ArbitraryURLDownloader()
     try:
-        with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as f:
-            version = f.read().strip()
+        with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as vfile:
+            version = vfile.read().strip()
         version, buildinfo = parse_version(version)
     except:
         version = (0, 0, 0)
@@ -314,7 +319,6 @@ def run(f, outdir, created_modpack=True):
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         _dl.stop()
 
-    print('=====================')
     any_ = False
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         if _dl.failed_downloads:
@@ -335,11 +339,11 @@ def run(f, outdir, created_modpack=True):
         else:
             print('All done!  Modpack successfully updated.')
         print('===============  S U C C E S S  ================')
-        with open(os.path.join(output_dir, 'SwordfishPDS-PackVersion.txt'), 'w') as f:
-            f.write('%d.%d.%d' % version)
+        with open(os.path.join(output_dir, 'SwordfishPDS-PackVersion.txt'), 'w') as vfile:
+            vfile.write('%d.%d.%d' % version)
             if buildinfo:
-                f.write('+')
-                f.write(buildinfo)
+                vfile.write('+')
+                vfile.write(buildinfo)
 
 
 def parse_version(version):
