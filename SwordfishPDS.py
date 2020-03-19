@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import atexit
 import csv
 import http.client
 import http.cookiejar
@@ -12,10 +13,10 @@ import time
 import urllib.parse
 import urllib.request
 import zipfile
-import atexit
 
 ZIP_THREADS = 5
 THREADS = 3
+SERVER_MODE = False  # set to True by __main__
 
 cookiejar = http.cookiejar.MozillaCookieJar('cookies.txt')
 try:
@@ -96,6 +97,15 @@ def download(url, failed_downloads):
         failed_downloads[filename_from_url(url)] = e
         return None
     return resp
+
+
+def _strip_dot_minecraft(filename):
+    if SERVER_MODE:
+        if filename.startswith('.minecraft'):
+            filename = filename[10:]
+            if filename[0] == '/':
+                filename = filename[1:]
+    return filename
 
 class Downloader:
     def __init__(self, host, urlformat, tag=''):
@@ -288,7 +298,9 @@ threading.Thread(target=print_thread, args=(printq,), daemon=True).start()
 
 def run(f, outdir, created_modpack=True):
     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
-    mods_dir = os.path.join(outdir, '.minecraft', 'mods')
+    mods_dir = os.path.join(outdir, 'mods') if SERVER_MODE else os.path.join(outdir, '.minecraft', 'mods')
+    all_mods = []
+    dud_mods = []
     os.makedirs(mods_dir, exist_ok=True)
     zip_downloader = ZipDownloader()
     other_stuff_downloader = ArbitraryURLDownloader()
@@ -303,20 +315,35 @@ def run(f, outdir, created_modpack=True):
         print('Could not load version from file!', e)
     print(version, buildinfo)
     with f:
-        for type, *arg in csv.reader(f):
+        # ugly (or beautiful depending on how you look at it) python 3 hack for comment characters
+        for type, *arg in csv.reader(filter(lambda line: not line.startswith('#'), f)):
             if type == 'MOD':
                 mod_downloader.start(THREADS)
                 modid, filename = arg
+                all_mods.append(filename)
+                # if the mod exists, but is disabled, don't download it again
+                # as that both wastes time and confuses MultiMC.
+                mod_path = os.path.join(mods_dir, filename)
+                if os.path.exists(mod_path + '.disabled'):
+                    os.rename(mod_path + '.disabled', mod_path)
+                if not modid.strip():
+                    # dud mod, will be downloaded by other means.  just add it to the mod list and move on
+                    print('encountered dud mod', filename)
+                    dud_mods.append(filename)
+                    continue
                 assert modid.isdigit() and len(modid) <= 7
                 a = int(modid[:-3])
                 b = int(modid[-3:])
+                if a == b == 0:
+                    continue  # ditto
                 mod_downloader.put(a, b, filename, mods_dir)
             elif type == 'Zipfile':
                 # Make each zip download its own thread for parallel extraction.
                 url, dest_dir, max_version = arg
                 max_version, max_buildinfo = parse_version(max_version)
-                # Don't bother wasting time
-                print(version, max_version)
+                dest_dir = _strip_dot_minecraft(dest_dir)
+                # If one or more downloads have already failed, fail fast and don't bother downloading the zip file,
+                # since we're not going to update the version number anyway.
                 if version < max_version and not zip_downloader.failed_downloads \
                         and not mod_downloader.failed_downloads and not other_stuff_downloader.failed_downloads:
                     zip_downloader.start(ZIP_THREADS)
@@ -328,10 +355,28 @@ def run(f, outdir, created_modpack=True):
             elif type == 'Download':
                 url, filename = arg
                 other_stuff_downloader.start(THREADS)
+                filename = _strip_dot_minecraft(filename)
+                if os.path.exists(filename + '.disabled'):
+                    os.rename(filename + '.disabled', filename)
+                    # if the download got far enough to be disabled, assume it's good.
+                    continue
                 other_stuff_downloader.put(url, os.path.join(outdir, filename.replace('/', os.path.sep)))
             elif type == 'Version':
                 new_version, = arg
                 version, buildinfo = parse_version(new_version)
+            elif type == 'Nuke':
+                filename, = arg
+                filename = os.path.join(outdir, _strip_dot_minecraft(filename))
+                if os.path.exists(filename):
+                    os.rename(filename, filename + '.disabled')
+
+    surplus_mods = []
+    installed_mods = os.listdir(mods_dir)
+    for mod in installed_mods:
+        if mod.endswith('.jar') and mod not in all_mods:
+            surplus_mods.append(mod)
+        elif mod in dud_mods:
+            dud_mods.remove(mod)
 
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         _dl.stop()
@@ -344,6 +389,12 @@ def run(f, outdir, created_modpack=True):
                 print(' - %s: %s'%(file, reason))
             any_ = True
 
+    if dud_mods:
+        any_ = True
+        print('Some mods were listed as required but were not installed:')
+        for mod in dud_mods:
+            print(' -', mod)
+
     print('================================================')
     if any_:
         print('Please go yell at @Snek or @some dude 2000 miles away in Discord because')
@@ -355,12 +406,33 @@ def run(f, outdir, created_modpack=True):
             print('You may need to restart MultiMC before the modpack appears.')
         else:
             print('All done!  Modpack successfully updated.')
-        print('===============  S U C C E S S  ================')
+
         with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt'), 'w') as vfile:
             vfile.write('%d.%d.%d' % version)
             if buildinfo:
                 vfile.write('+')
                 vfile.write(buildinfo)
+
+        if surplus_mods:
+            print('These mods are installed in your client but are not in the pack description:')
+            for mod in surplus_mods:
+                print('-', mod)
+            choice = ask_user(["Leave them in (they won't get activated when you connect to the server)",
+                               'Disable them (can be re-enabled in the Loader Mods tab in MultiMC)',
+                               'Delete them'], 'What would you like to do?')
+            if choice == 1:
+                for mod in surplus_mods:
+                    path_to_mod = os.path.join(mods_dir, mod)
+                    try:
+                        os.rename(path_to_mod, path_to_mod + '.disabled')
+                    except FileExistsError:
+                        os.unlink(path_to_mod)
+            elif choice == 2:
+                for mod in surplus_mods:
+                    os.unlink(os.path.join(mods_dir, mod))
+
+        print('===============  S U C C E S S  ================')
+        print('Go launch your game.')
 
 
 def parse_version(version):
@@ -549,9 +621,6 @@ def connect(server):
             print('There are no packs available for download right now.  Please try again later.')
             input('Press Enter to quit.')
             exit()
-        print('===========================================')
-        for i, pack in enumerate(available_packs):
-            print(' %d. %s' % (i+1, pack))
         choice = ask_user(available_packs, 'Which pack do you want to download? ')
         f.write(available_packs[choice])
         f.write('\n')
@@ -561,6 +630,9 @@ def connect(server):
         return f, available_packs[choice]
 
 def ask_user(options, prompt='Choose an option: '):
+    print('===========================================')
+    for i, option in enumerate(options):
+        print(' %d. %s' % (i + 1, option))
     while True:
         choice = input(prompt)
         try:
@@ -578,9 +650,11 @@ def ask_user(options, prompt='Choose an option: '):
 if __name__=='__main__':
     output_dir = None
     file = None
-    connect_ip = '73.71.247.208'
+    connect_ip = 'redbaron.local'
     connect_port = 21617
     for arg in sys.argv[1:]:
+        if arg == '--server-mode':
+            SERVER_MODE = True
         if os.path.isdir(arg):
             output_dir = arg
         elif os.path.isfile(arg):
@@ -593,11 +667,14 @@ if __name__=='__main__':
                 connect_ip = arg
         else:
             print('Usage:')
-            print('SwordfishPDS.py [{path to csv file|server_ip[:server_port]] [output_directory]')
+            print('SwordfishPDS.py [--server-mode] [{path to csv file|server_ip[:server_port]] [output_directory]')
             print('If no CSV file is provided, the script will connect to the specified server,')
             print('download a list of CSV files, and ask you to choose one.  If no server is')
             print('specified, the hardcoded default is 73.71.247.208 (the default server IP for')
             print('all SFE modpacks).  Port, if omitted, defaults to 21617.')
+            print("--server-mode indicates that we're installing mods on the server rather than a client.")
+            print('If specified, files will be placed directly in the destination directory rather than')
+            print('destdir/.minecraft.')
             exit()
     # locate_multimc_dir() sometimes requires user intervention, so for the sake of seamlessness, skip it
     # if an output dir is specified.  Also do it before potentially connecting to the server.
