@@ -249,10 +249,12 @@ class ArbitraryURLDownloader(Downloader):
             if resp is None:
                 continue
             with resp:
-                if fout is None:
+                if os.path.isdir(dest):
                     filename = extract_filename(resp)
-                    os.makedirs(dest, exist_ok =True)
                     fout = open(os.path.join(dest, filename), 'wb')
+                elif fout is None:
+                    os.makedirs(os.path.dirname(dest), exist_ok=True)
+                    fout = open(dest, 'wb')
                 with fout:
                     copyfileobj(resp, fout, filename, get_content_length(resp))
 
@@ -471,9 +473,10 @@ def locate_multimc_dir():
 
     if plat=='Windows':
         candidates = [
-            os.environ['USERPROFILE']+r'\MultiMC',
-            os.environ['appdata']+r'\MultiMC',
-            os.environ['USERPROFILE']+r'\Desktop\MultiMC',
+            os.environ['USERPROFILE'] +r'\MultiMC',
+            os.environ['appdata'] +r'\MultiMC',
+            os.environ['USERPROFILE'] +r'\Desktop\MultiMC',
+            os.environ['USERPROFILE'] + r'\Downloads\MultiMC',
         ]
     elif plat=='Linux':
         candidates = [
