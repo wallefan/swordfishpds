@@ -1,18 +1,18 @@
-import socket
-import queue
+import csv
 import http.client
 import os
+import queue
+import socket
+import sys
+import tempfile
 import threading
 import time
-import sys
-import csv
-import urllib.request
 import urllib.parse
-import tempfile
+import urllib.request
 import zipfile
 
 ZIP_THREADS = 5
-THREADS = 1
+THREADS = 3
 
 # This global variable becomes true when we are done prompting the user about things,
 # and other threads are now free to start writing to stdout.
@@ -30,7 +30,7 @@ def extract_filename(resp, fallback=None):
             if part.startswith('filename='):
                 return part[9:].strip('"')
                 break
-    return fallback or filename_from_url(url)
+    return fallback or filename_from_url(resp.geturl())
 
 
 def filename_from_url(url):
@@ -61,9 +61,12 @@ def copyfileobj(fin, fout, filename='', sz=0):
             with memoryview(buffer)[:n] as view:
                 fout.write(view)
         total += n
-        if sz and time.perf_counter() >= t + 1:
+        if time.perf_counter() >= t + 1:
             # Calls to sys.stdout.write() are atomic.  Calls to print() are not.
-            sys.stdout.write('Downloading %s (%.1f%% complete)\n' % (filename, (total * 100) / sz))
+            if sz:
+                sys.stdout.write('Downloading %s (%.1f%% complete)\n' % (filename, (total * 100) / sz))
+            else:
+                sys.stdout.write('Downloading %s (%d bytes transferred)\n' % (filename, total))
             t = time.perf_counter()
 
 
@@ -234,7 +237,7 @@ class ZipDownloader(Downloader):
                 return
             url, dest = item
             with tempfile.TemporaryFile() as f:
-                resp = download(url, f, self.failed_downloads)
+                resp = download(url, self.failed_downloads)
                 if not resp:
                     continue
                 copyfileobj(resp, f, extract_filename(resp), get_content_length(resp))
@@ -261,65 +264,6 @@ threading.Thread(target=print_thread, args=(printq,), daemon=True).start()
 ##################################################
 ############ FILE FORMAT #########################
 ##################################################
-#
-# def run(f, outdir):
-#     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
-#     gdrive_downloader = Downloader('drive.google.com','/uc?export=download&id={0}', 'Google Drive files')
-#     surplus_mods=[]
-#     with f:
-#         chunk_header = f.read(4)
-#         while True:
-#             if chunk_header == 'FIN':
-#                 break
-#             if chunk_header == 'MODS':
-#                 mods_dir = os.path.join(outdir, '.minecraft', 'mods')
-#                 all_mods = []
-#                 mod_downloader.start(THREADS)
-#                 while True:
-#                     s = f.read(4)
-#                     if not s.isdigit():
-#                         chunk_header = s
-#                         break
-#                     a = int(s)
-#                     s = f.read(3)
-#                     assert s.isdigit(), s
-#                     b = int(s)
-#                     filename = f.readline().strip()
-#                     mod_downloader.put(a, b, filename, mods_dir)
-#                     all_mods.append(filename)
-#                 # we don't have to worry about a race condition here because none of the files the other thread
-#                 # is creating are files we're interested in.
-#                 for mod in os.listdir(mods_dir):
-#                     if mod.endswith('.jar') and mod not in all_mods:
-#                         surplus_mods.append(mod)
-#                 # We will deal with surplus_mods later, at the end of the file.
-#             elif chunk_header == 'CONF':
-#                 print('conf')
-#                 filename = os.path.join(outdir, '.minecraft', 'config', f.readline().strip())
-#                 # I have no idea how to handle the error in this case, so just let it propagate.
-#                 line_count = int(f.readline().strip())
-#                 with open(filename, 'w') as fout:
-#                     fout.writelines(f.readline() for _ in range(line_count))
-#                 chunk_header = f.read(4)
-#             elif chunk_header == 'GDRV':
-#                 gdrive_downloader.start(THREADS)
-#                 while True:
-#                     line = f.readline().strip()
-#                     if not line:
-#                         break
-#                     gdid, sep, path = line.partition('->')
-#                     gdid = gdid.strip()
-#                     assert sep, 'illegal gdrive directive %s' % line[:20]
-#                     if ';' in path:
-#                         path = path[:path.find(';')]
-#                     path = os.path.join(outdir, path.strip().replace('/',os.pathsep))
-#                     os.makedirs(path, exist_ok=True)
-#                     gdrive_downloader.put(gdid, path)
-#
-#             else:
-#                 raise AssertionError('Unknown chunk header "%s"' % chunk_header)
-#     gdrive_downloader.stop()
-#     mod_downloader.stop()
 
 def run(f, outdir, created_modpack=True):
     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
@@ -339,25 +283,26 @@ def run(f, outdir, created_modpack=True):
             if type == 'MOD':
                 mod_downloader.start(THREADS)
                 modid, filename = arg
-                assert arg.isdigit() and len(arg) <= 7
-                a = int(arg[:-3])
-                b = int(arg[-3:])
+                assert modid.isdigit() and len(modid) <= 7
+                a = int(modid[:-3])
+                b = int(modid[-3:])
                 mod_downloader.put(a, b, filename, mods_dir)
             elif type == 'Zipfile':
                 # Make each zip download its own thread for parallel extraction.
-                arg, output_dir, max_version = arg
+                url, output_dir, max_version = arg
+                print('encountered zipfile directive', url, output_dir, max_version)
                 max_version, max_buildinfo = parse_version(max_version)
                 if version < max_version:
                     zip_downloader.start(ZIP_THREADS)
                     os.makedirs(output_dir, exist_ok=True)
-                    zip_downloader.put(arg, filename)
+                    zip_downloader.put(url, filename)
             elif type == 'Download':
                 url, filename = arg
                 other_stuff_downloader.start(THREADS)
                 other_stuff_downloader.put(url, filename)
             elif type == 'Version':
                 new_version, = arg
-                version, buildinfo = parse_version(version)
+                version, buildinfo = parse_version(new_version)
 
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         _dl.stop()
@@ -383,7 +328,7 @@ def run(f, outdir, created_modpack=True):
         else:
             print('All done!  Modpack successfully updated.')
         print('===============  S U C C E S S  ================')
-        with open('SwordfishPDS-PackVersion.txt', 'w') as f:
+        with open(os.path.join(output_dir, 'SwordfishPDS-PackVersion.txt'), 'w') as f:
             f.write('%d.%d.%d' % version)
             if buildinfo:
                 f.write('+')
@@ -391,7 +336,8 @@ def run(f, outdir, created_modpack=True):
 
 
 def parse_version(version):
-    buildinfo, _, version = version.partition('+')
+    version, _, buildinfo = version.partition('+')
+    assert version.count('.') == 2, 'invalid version number ' + version
     major, minor, patch = version.split('.')
     if major.lower() == 'x':
         major = 999
