@@ -242,7 +242,8 @@ class ZipDownloader(Downloader):
                 return
             url, dest = item
             with tempfile.TemporaryFile() as f:
-                resp = download(url, self.failed_downloads)
+                resp = download(urllib.request.Request(url, headers={'User-Agent': 'SwordfishPDS-1.0'}),
+                                self.failed_downloads)
                 if not resp:
                     continue
                 copyfileobj(resp, f, extract_filename(resp), get_content_length(resp))
