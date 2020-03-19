@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import csv
 import http.client
 import os
@@ -34,6 +35,8 @@ def extract_filename(resp, fallback=None):
 
 
 def filename_from_url(url):
+    if '?' in url:
+        return url
     path = urllib.parse.urlsplit(url).path
     return path[path.rfind('/') + 1:]
 
@@ -74,6 +77,8 @@ def download(url, failed_downloads):
     try:
         resp = urllib.request.urlopen(url)
     except Exception as e:
+        if isinstance(url, urllib.request.Request):
+            url = url.get_full_url()
         failed_downloads[filename_from_url(url)] = e
         return None
     return resp
@@ -289,17 +294,18 @@ def run(f, outdir, created_modpack=True):
                 mod_downloader.put(a, b, filename, mods_dir)
             elif type == 'Zipfile':
                 # Make each zip download its own thread for parallel extraction.
-                url, output_dir, max_version = arg
-                print('encountered zipfile directive', url, output_dir, max_version)
+                url, dest_dir, max_version = arg
                 max_version, max_buildinfo = parse_version(max_version)
-                if version < max_version:
+                # Don't bother wasting time
+                if version < max_version and not zip_downloader.failed_downloads \
+                        and not mod_downloader.failed_downloads and not other_stuff_downloader.failed_downloads:
                     zip_downloader.start(ZIP_THREADS)
                     os.makedirs(output_dir, exist_ok=True)
-                    zip_downloader.put(url, filename)
+                    zip_downloader.put(url, os.path.join(outdir, dest_dir.replace('/', os.pathsep)))
             elif type == 'Download':
                 url, filename = arg
                 other_stuff_downloader.start(THREADS)
-                other_stuff_downloader.put(url, filename)
+                other_stuff_downloader.put(url, os.path.join(outdir, filename.replace('/', os.pathsep)))
             elif type == 'Version':
                 new_version, = arg
                 version, buildinfo = parse_version(new_version)
@@ -312,8 +318,8 @@ def run(f, outdir, created_modpack=True):
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         if _dl.failed_downloads:
             print('Some', _dl, 'failed to download:')
-            for i in _dl.failed_downloads:
-                print('-', i)
+            for file, reason in _dl.failed_downloads.items():
+                print(' - %s: %s'%(file, reason))
             any_ = True
 
     print('================================================')
@@ -550,7 +556,7 @@ def ask_user(options, prompt='Choose an option: '):
 if __name__=='__main__':
     output_dir = None
     file = None
-    connect_ip = '73.71.247.208'
+    connect_ip = 'redbaron.local'
     connect_port = 21617
     for arg in sys.argv[1:]:
         if os.path.isdir(arg):
