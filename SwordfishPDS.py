@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import csv
 import http.client
+import http.cookiejar
 import os
 import queue
 import socket
@@ -16,8 +17,9 @@ ZIP_THREADS = 5
 THREADS = 3
 
 
+
 opener = urllib.request.build_opener()
-opener.add_handler(urllib.request.HTTPCookieProcessor())
+opener.add_handler(urllib.request.HTTPCookieProcessor(http.cookiejar.MozillaCookieJar('cookies.txt')))
 urllib.request.install_opener(opener)
 
 # This global variable becomes true when we are done prompting the user about things,
@@ -194,7 +196,7 @@ class Downloader:
         # Clear out the queue.
         while not self.queue.empty():
             item = self.queue.get_nowait()
-            assert item is None, "Entry %s still in queue when join() was called!" % item
+            assert item is None, "Entry %s still in queue when join() was called!" % (item,)
         self.threads.clear()
 
     def put(self, *task):
@@ -230,7 +232,8 @@ class ArbitraryURLDownloader(Downloader):
             with resp:
                 if fout is None:
                     filename = extract_filename(resp)
-                    fout = open(filename, 'wb')
+                    os.makedirs(dest, exist_ok =True)
+                    fout = open(os.path.join(dest, filename), 'wb')
                 with fout:
                     copyfileobj(resp, fout, filename, get_content_length(resp))
 
@@ -285,10 +288,13 @@ def run(f, outdir, created_modpack=True):
     try:
         with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as vfile:
             version = vfile.read().strip()
+        print('read version', version, 'from file')
         version, buildinfo = parse_version(version)
-    except:
+    except Exception as e:
         version = (0, 0, 0)
         buildinfo = None
+        print('Could not load version from file!', e)
+    print(version, buildinfo)
     with f:
         for type, *arg in csv.reader(f):
             if type == 'MOD':
@@ -303,15 +309,19 @@ def run(f, outdir, created_modpack=True):
                 url, dest_dir, max_version = arg
                 max_version, max_buildinfo = parse_version(max_version)
                 # Don't bother wasting time
+                print(version, max_version)
                 if version < max_version and not zip_downloader.failed_downloads \
                         and not mod_downloader.failed_downloads and not other_stuff_downloader.failed_downloads:
                     zip_downloader.start(ZIP_THREADS)
-                    os.makedirs(output_dir, exist_ok=True)
-                    zip_downloader.put(url, os.path.join(outdir, dest_dir.replace('/', os.pathsep)))
+                    dest_dir = os.path.join(outdir, dest_dir.replace('/', os.path.sep))
+                    os.makedirs(dest_dir, exist_ok=True)
+                    zip_downloader.put(url, dest_dir)
+                if version > max_version:
+                    sys.stdout.write('Skipping downloading %s because we are already up to date.\n'%url)
             elif type == 'Download':
                 url, filename = arg
                 other_stuff_downloader.start(THREADS)
-                other_stuff_downloader.put(url, os.path.join(outdir, filename.replace('/', os.pathsep)))
+                other_stuff_downloader.put(url, os.path.join(outdir, filename.replace('/', os.path.sep)))
             elif type == 'Version':
                 new_version, = arg
                 version, buildinfo = parse_version(new_version)
@@ -339,7 +349,7 @@ def run(f, outdir, created_modpack=True):
         else:
             print('All done!  Modpack successfully updated.')
         print('===============  S U C C E S S  ================')
-        with open(os.path.join(output_dir, 'SwordfishPDS-PackVersion.txt'), 'w') as vfile:
+        with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt'), 'w') as vfile:
             vfile.write('%d.%d.%d' % version)
             if buildinfo:
                 vfile.write('+')
@@ -351,15 +361,15 @@ def parse_version(version):
     assert version.count('.') == 2, 'invalid version number ' + version
     major, minor, patch = version.split('.')
     if major.lower() == 'x':
-        major = 999
+        major = -1
     else:
         major = int(major)
     if minor.lower() == 'x':
-        minor = 999
+        minor = -1
     else:
         minor = int(minor)
     if patch.lower() == 'x':
-        patch = 999
+        patch = -1
     else:
         patch = int(patch)
     return ((major, minor, patch), buildinfo)
