@@ -145,7 +145,7 @@ class Downloader:
             output_dir = item[-1]
             item = item[:-1]
 
-            urlpath = urllib.parse.quote(self.urltemplate.format(*item))
+            urlpath = self.urltemplate.format(*item).replace(' ', '%20')
             maybe_filename = item[-1]
             if maybe_filename.endswith('.jar'):
                 # then it is definitely a filename
@@ -165,7 +165,7 @@ class Downloader:
                         # sys.stdout, are not.
                         sys.stdout.write(f'Error {resp.code} on {maybe_filename}')
                         self.failed_downloads.append(maybe_filename)
-                        if resp.headers['Connection']=='Keep-Alive':
+                        if resp.headers['Connection'] == 'keep-alive':
                             resp.read()  # known bug in http library.
                         continue
                     filename = extract_filename(resp) or maybe_filename
@@ -187,11 +187,14 @@ class Downloader:
                 if resp.code == 416:  # 416 Range Not Satisfiable
                     # We've already got the whole file.
                     sys.stdout.write('%s is already up to date.\n'%filename)
-                    if resp.headers.get('Connection') == 'Keep-Alive':
+                    if resp.headers.get('Connection') == 'keep-alive':
                         resp.read()  # work around bug in http.client.
                     continue
                 elif resp.code != 200 and resp.code != 206:  # 200 OK, or 206 Partial Response for Range header
                     self.failed_downloads[filename] = '%d %s' % (resp.code, resp.reason)
+                    print(resp.headers['Connection'])
+                    if resp.headers['Connection'] == 'keep-alive':
+                        resp.read()
                     continue
                 copyfileobj(resp, fout, filename, get_content_length(resp))
 
