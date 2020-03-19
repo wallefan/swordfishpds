@@ -11,6 +11,7 @@ import urllib.parse
 import tempfile
 import zipfile
 
+ZIP_THREADS = 5
 THREADS = 1
 
 # This global variable becomes true when we are done prompting the user about things,
