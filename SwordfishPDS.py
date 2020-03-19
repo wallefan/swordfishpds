@@ -12,11 +12,18 @@ import time
 import urllib.parse
 import urllib.request
 import zipfile
+import atexit
 
 ZIP_THREADS = 5
 THREADS = 3
 
+cookiejar = http.cookiejar.MozillaCookieJar('cookies.txt')
+try:
+    cookiejar.load()
+except (FileNotFoundError, http.cookiejar.LoadError):
+    pass
 
+atexit.register(cookiejar.save)
 
 opener = urllib.request.build_opener()
 opener.add_handler(urllib.request.HTTPCookieProcessor(http.cookiejar.MozillaCookieJar('cookies.txt')))
