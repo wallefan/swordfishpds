@@ -164,7 +164,7 @@ class Downloader:
                         # Single writes to sys.stdout are atomic.  Calls to print(), which make multiple writes to
                         # sys.stdout, are not.
                         sys.stdout.write(f'Error {resp.code} on {maybe_filename}')
-                        self.failed_downloads.append(maybe_filename)
+                        self.failed_downloads[maybe_filename] = '%d %s' % (resp.code, resp.reason)
                         if resp.headers['Connection'] == 'keep-alive':
                             resp.read()  # known bug in http library.
                         continue
@@ -372,7 +372,10 @@ def run(f, outdir, created_modpack=True):
                 filename, = arg
                 filename = os.path.join(outdir, _strip_dot_minecraft(filename))
                 if os.path.exists(filename):
-                    os.rename(filename, filename + '.disabled')
+                    if os.path.exists(filename + '.disabled'):
+                        os.unlink(filename)
+                    else:
+                        os.rename(filename, filename + '.disabled')
 
     for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
         _dl.stop()
