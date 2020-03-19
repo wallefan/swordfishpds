@@ -145,8 +145,8 @@ class Downloader:
             output_dir = item[-1]
             item = item[:-1]
 
-            urlpath = self.urltemplate.format(*item).replace(' ', '%20')
-            maybe_filename = item[-1]
+            urlpath = self.urltemplate.format(*item).replace(' ', '+')
+            maybe_filename = urllib.parse.unquote(item[-1])
             if maybe_filename.endswith('.jar'):
                 # then it is definitely a filename
                 filename = maybe_filename
