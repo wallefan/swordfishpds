@@ -7,6 +7,7 @@ import time
 import sys
 import csv
 import urllib.request
+import urllib.parse
 import tempfile
 import zipfile
 
@@ -17,8 +18,61 @@ THREADS = 1
 allow_other_threads_to_print = False
 
 #######################################################
-#######                  DOWNLOADER           #########
+#######          DOWNLOAD MACHINERY           #########
 #######################################################
+
+
+def extract_filename(resp, fallback=None):
+    content_disposition = resp.headers.get('Content-Disposition')
+    if content_disposition:
+        for part in content_disposition.split(';'):
+            if part.startswith('filename='):
+                return part[9:].strip('"')
+                break
+    return fallback or filename_from_url(url)
+
+
+def filename_from_url(url):
+    path = urllib.parse.urlsplit(url).path
+    return path[path.rfind('/') + 1:]
+
+
+def get_content_length(resp, default=0):
+    length = resp.getheader('Content-Length', default)
+    try:
+        return int(length)
+    except ValueError:
+        return 0
+
+
+def copyfileobj(fin, fout, filename='', sz=0):
+    buffer = bytearray(64 * 1024)
+    bufsz = 64 * 1024
+    t = time.perf_counter()
+    total = 0
+    while True:
+        n = fin.readinto(buffer)
+        if n == bufsz:
+            fout.write(buffer)
+        elif n == 0:
+            return
+        else:
+            with memoryview(buffer)[:n] as view:
+                fout.write(view)
+        total += n
+        if sz and time.perf_counter() >= t + 1:
+            # Calls to sys.stdout.write() are atomic.  Calls to print() are not.
+            sys.stdout.write('Downloading %s (%.1f%% complete)\n' % (filename, (total * 100) / sz))
+            t = time.perf_counter()
+
+
+def download(url, failed_downloads):
+    try:
+        resp = urllib.request.urlopen(url)
+    except Exception as e:
+        failed_downloads[filename_from_url(url)] = e
+        return None
+    return resp
 
 class Downloader:
     def __init__(self, host, urlformat, tag=''):
@@ -37,7 +91,7 @@ class Downloader:
         # can't use a stopping boolean because of a race condition -- what if one thread is already blocked on get()
         # when self.stopping becomes true?
         self.threads = []
-        self.failed_downloads = []
+        self.failed_downloads = {}
         self.tag = tag
 
     def __str__(self):
@@ -80,13 +134,7 @@ class Downloader:
                         if resp.headers['Connection']=='Keep-Alive':
                             resp.read()  # known bug in http library.
                         continue
-                    content_disposition = resp.headers.get('Content-Disposition')
-                    filename = maybe_filename  # initialize filename to the fallback value (outlined above)
-                    if content_disposition:
-                        for part in content_disposition.split(';'):
-                            if part.startswith('filename='):
-                                filename = part[9:].strip('"')
-                                break
+                    filename = extract_filename(resp) or maybe_filename
             # Now we know for certain what the filename is.
             # Why do we need to know what the local filename is before we make the request? To resume downloads,
             # of course!
@@ -111,14 +159,9 @@ class Downloader:
                         resp.read()  # work around bug in http.client.
                     continue
                 elif resp.code != 200 and resp.code != 206:  # 200 OK, or 206 Partial Response for Range header
-                    self.failed_downloads.append(filename)
+                    self.failed_downloads[filename] = '%d %s' % (resp.code, resp.reason)
                     continue
-                length = resp.getheader('Content-Length', 0)
-                try:
-                    length = int(length)
-                except ValueError:
-                    length = 0
-                copyfileobj(resp, fout, filename, length)
+                copyfileobj(resp, fout, filename, get_content_length(resp))
 
     def start(self, nthreads):
         if self.threads:
@@ -148,7 +191,7 @@ class ArbitraryURLDownloader(Downloader):
     def __init__(self):
         super().__init__(None, None, 'files')
     def _worker(self):
-        import urllib.request
+        self.threads.append(threading.current_thread())
         while True:
             item = self.queue.get()
             if item is None:
@@ -158,47 +201,48 @@ class ArbitraryURLDownloader(Downloader):
                 # the path we have been passed is a file path, not a directory path,
                 # and it points to a file that already exists on disk.
                 # Resume download if possible.
+                fout = open(dest, 'ab')
+                filename = dest
+                req = urllib.request.Request(url, headers={'User-Agent': 'SwordfishPDS-1.0',
+                                                           'Range': 'bytes=%d-' % fout.tell()})
+            else:
+                # Don't trust that the last part of the URL is the filename.  It almost never is.
+                fout = None
+                filename = None
                 req = urllib.request.Request(url, headers={'User-Agent': 'SwordfishPDS-1.0'})
-            # Don't trust that the last part of the URL is the filename.  It almost never is.
-            req=urllib.request.Request(url, headers={'User-Agent':'SwordfishPDS-1.0'})
-            with urllib.request.urlopen(req) as resp:
-                content_disposition = resp.headers['Content-Disposition']
-                # figure out what we're supposed to save the file as.
-                if not os.path.isdir(dest):
-                    # then it's that.
-                    filename = dest
-                else:
-                    filename = None
-                    if content_disposition:
-                        for part in content_disposition.split(';'):
-                            if part.startswith('filename='):
-                                filename = part[9:].strip('"')
-                                break
-                    if filename is None:
-                        # server didn't tell us the filename.
-                        # assume it's embedded in the URL somewhere.
-                        import urllib.parse
-                        filename = urllib.parse.urlsplit(url)
+            resp = download(req, self.failed_downloads)
+            if resp is None:
+                continue
+            with resp:
+                if fout is None:
+                    filename = extract_filename(resp)
+                    fout = open(filename, 'wb')
+                with fout:
+                    copyfileobj(resp, fout, filename, get_content_length(resp))
 
-def copyfileobj(fin, fout,filename='',sz=0):
-    buffer = bytearray(64*1024)
-    bufsz=64*1024
-    t=time.perf_counter()
-    total=0
-    while True:
-        n=fin.readinto(buffer)
-        if n==bufsz:
-            fout.write(buffer)
-        elif n==0:
-            return
-        else:
-            with memoryview(buffer)[:n] as view:
-                fout.write(view)
-        total += n
-        if sz and time.perf_counter() >= t + 1:
-            # Calls to sys.stdout.write() are atomic.  Calls to print() are not.
-            sys.stdout.write('Downloading %s (%.1f%% complete)\n' % (filename, (total*100)/sz))
-            t=time.perf_counter()
+
+class ZipDownloader(Downloader):
+    def __init__(self):
+        super().__init__(None, None, 'ZIP files')
+
+    def _worker(self):
+        self.threads.append(threading.current_thread())
+        while True:
+            item = self.queue.get()
+            if item is None:
+                return
+            url, dest = item
+            with tempfile.TemporaryFile() as f:
+                resp = download(url, f, self.failed_downloads)
+                if not resp:
+                    continue
+                copyfileobj(resp, f, extract_filename(resp), get_content_length(resp))
+                try:
+                    with zipfile.ZipFile(f) as zf:
+                        zf.extractall(dest)
+                except Exception as e:
+                    self.failed_downloads[extract_filename(resp)] = e
+
 
 
 # Necessary because Python, unlike Java, does not allow manual synchronization of I/O descriptors.
@@ -276,39 +320,92 @@ threading.Thread(target=print_thread, args=(printq,), daemon=True).start()
 #     gdrive_downloader.stop()
 #     mod_downloader.stop()
 
-def zip_download_worker(url, output, list_of_failed_downloads):
-    import tempfile
-    try:
-        with tempfile.SpooledTemporaryFile() as f:
-            with urllib.request.urlopen(url) as fin:
-                assert fin.code == 200
-                copyfileobj(fin, f)
-            f.seek(0)
-            with zipfile.ZipFile(f) as zf:
-                zf.extractall(output)
-    except Exception as e:
-        list_of_failed_downloads.append((url, e))
-
-def run(f, outdir):
+def run(f, outdir, created_modpack=True):
     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
     mods_dir = os.path.join(outdir, '.minecraft', 'mods')
     os.makedirs(mods_dir, exist_ok=True)
+    zip_downloader = ZipDownloader()
     other_stuff_downloader = ArbitraryURLDownloader()
-    failed_zip_downloads = []
+    try:
+        with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as f:
+            version = f.read().strip()
+        version, buildinfo = parse_version(version)
+    except:
+        version = (0, 0, 0)
+        buildinfo = None
     with f:
-        for type, arg, filename_or_directory in csv.reader(f):
+        for type, *arg in csv.reader(f):
             if type == 'MOD':
                 mod_downloader.start(THREADS)
+                modid, filename = arg
                 assert arg.isdigit() and len(arg) <= 7
                 a = int(arg[:-3])
                 b = int(arg[-3:])
-                mod_downloader.put(a, b, filename_or_directory, mods_dir)
+                mod_downloader.put(a, b, filename, mods_dir)
             elif type == 'Zipfile':
-                threading.Thread(target=zip_download_worker, args=(arg, filename_or_directory, failed_zip_downloads)) \
-                    .start()
+                # Make each zip download its own thread for parallel extraction.
+                arg, output_dir, max_version = arg
+                max_version, max_buildinfo = parse_version(max_version)
+                if version < max_version:
+                    zip_downloader.start(ZIP_THREADS)
+                    os.makedirs(output_dir, exist_ok=True)
+                    zip_downloader.put(arg, filename)
             elif type == 'Download':
+                url, filename = arg
                 other_stuff_downloader.start(THREADS)
-                other_stuff_downloader.put(arg, filename_or_directory)
+                other_stuff_downloader.put(url, filename)
+            elif type == 'Version':
+                new_version, = arg
+                version, buildinfo = parse_version(version)
+
+    for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
+        _dl.stop()
+
+    print('=====================')
+    any_ = False
+    for _dl in (mod_downloader, zip_downloader, other_stuff_downloader):
+        if _dl.failed_downloads:
+            print('Some', _dl, 'failed to download:')
+            for i in _dl.failed_downloads:
+                print('-', i)
+            any_ = True
+
+    print('================================================')
+    if any_:
+        print('Please go yell at @Snek or @some dude 2000 miles away in Discord because')
+        print('this is probably their fault.')
+        print("========= D O W N L O A D   F A I L E D ========")
+    else:
+        if created_modpack:
+            print('All done!  Modpack successfully installed.')
+            print('You may need to restart MultiMC before the modpack appears.')
+        else:
+            print('All done!  Modpack successfully updated.')
+        print('===============  S U C C E S S  ================')
+        with open('SwordfishPDS-PackVersion.txt', 'w') as f:
+            f.write('%d.%d.%d' % version)
+            if buildinfo:
+                f.write('+')
+                f.write(buildinfo)
+
+
+def parse_version(version):
+    buildinfo, _, version = version.partition('+')
+    major, minor, patch = version.split('.')
+    if major.lower() == 'x':
+        major = 999
+    else:
+        major = int(major)
+    if minor.lower() == 'x':
+        minor = 999
+    else:
+        minor = int(minor)
+    if patch.lower() == 'x':
+        patch = 999
+    else:
+        patch = int(patch)
+    return ((major, minor, patch), buildinfo)
+
 
 def prompt_yn(prompt):
     while True:
@@ -473,6 +570,10 @@ def connect(server):
             if not line:
                 break
             available_packs.append(line)
+        if not available_packs:
+            print('There are no packs available for download right now.  Please try again later.')
+            input('Press Enter to quit.')
+            exit()
         print('===========================================')
         for i, pack in enumerate(available_packs):
             print(' %d. %s' % (i+1, pack))
@@ -502,13 +603,13 @@ def ask_user(options, prompt='Choose an option: '):
 if __name__=='__main__':
     output_dir = None
     file = None
-    connect_ip = '73.71.247.208'
+    connect_ip = 'redbaron.local'
     connect_port = 21617
     for arg in sys.argv[1:]:
         if os.path.isdir(arg):
             output_dir = arg
         elif os.path.isfile(arg):
-            file = open(arg)
+            file = arg
         elif all(ch in '1234567890.:' for ch in arg):
             if ':' in arg:
                 connect_ip, connect_port = arg.split(':')
@@ -534,10 +635,6 @@ if __name__=='__main__':
         pack_name = os.path.splitext(os.path.basename(file))[0]
     else:
         f, pack_name = connect((connect_ip, connect_port))
-
     if output_dir is None:
         output_dir = createMinecraftFolder(multimc_dir, pack_name)
     run(f, output_dir)
-    print('=====================')
-    print('All done!  Modpack successfully installed.')
-    print('You may need to restart MultiMC before the changes take effect.')
