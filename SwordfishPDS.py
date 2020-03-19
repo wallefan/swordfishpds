@@ -145,6 +145,7 @@ class Downloader:
             output_dir = item[-1]
             item = item[:-1]
 
+            urlpath = urllib.parse.quote(self.urltemplate.format(*item))
             maybe_filename = item[-1]
             if maybe_filename.endswith('.jar'):
                 # then it is definitely a filename
@@ -157,7 +158,7 @@ class Downloader:
                 length = None
             else:
                 # we can't be absolutely certain that it's a filename.  Best to double check.
-                connection.request('HEAD', self.urltemplate.format(*item), headers={'User-Agent': 'SwordfishPDS-1.0'})
+                connection.request('HEAD', urlpath, headers={'User-Agent': 'SwordfishPDS-1.0'})
                 with connection.getresponse() as resp:
                     if resp.code != 200:
                         # Single writes to sys.stdout are atomic.  Calls to print(), which make multiple writes to
@@ -175,15 +176,13 @@ class Downloader:
             if os.path.exists(output_path):
                 fout = open(output_path, 'ab')
                 my_length=fout.tell()
-                connection.request('GET', self.urltemplate.format(*item), headers={
+                connection.request('GET', urlpath, headers={
                     'User-Agent': 'SwordfishPDS-1.0',
                     'Range': f'bytes={my_length}-'
                 })
             else:
                 fout=open(output_path, 'wb')
-                connection.request('GET', self.urltemplate.format(*item), headers={
-                    'User-Agent': 'SwordfishPDS-1.0',
-                })
+                connection.request('GET', urlpath, headers={'User-Agent': 'SwordfishPDS-1.0'})
             with fout, connection.getresponse() as resp:
                 if resp.code == 416:  # 416 Range Not Satisfiable
                     # We've already got the whole file.
