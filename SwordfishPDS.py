@@ -475,6 +475,12 @@ def prompt_yn(prompt):
 
 
 def locate_multimc_dir():
+    try:
+        with open('_swordfishpds_multimc_folder.txt') as f:
+            return f.read().strip()
+    except:
+        pass
+
     import platform
     plat=platform.system()
 
@@ -499,7 +505,7 @@ def locate_multimc_dir():
         if os.path.exists(candidate):
             print('Found MultiMC directory at:', candidate)
             if prompt_yn('Is this correct?  (If unsure, answer yes).\nType Y or N:'):
-                return candidate
+                multimc_dir = candidate
             else:
                 # If the user answered "no", their install is probably in a nonstandard location.
                 # Don't bother checking the other standard ones.
@@ -526,10 +532,17 @@ def locate_multimc_dir():
                 head, tail = os.path.split(path)
                 if head.endswith('instances'):
                     head2, tail2 = os.path.split(head)
-                    return head2
+                    assert tail2 == 'instances'
+                    multimc_dir = head2
+                    break
                 elif tail == 'instances':
                     # the user is smart and has already trimmed the path down to the instance folder.
-                    return head
+                    multimc_dir = head
+                    break
+                elif os.path.isdir(os.path.join(path, 'instances')):
+                    # the user is VERY smart and has already trimmed the path down to the MultiMC folder.
+                    multimc_dir = path
+                    break
             print("Couldn't quite catch that.  Please try again.")
     else:
         # assume users of other systems have at least half a brain.
@@ -540,8 +553,19 @@ def locate_multimc_dir():
                 continue
             head, tail = os.path.split(path)
             if tail == 'instances':
-                return head
-            return path
+                multimc_dir = head
+            elif os.path.exists(os.path.join(path, 'instances')):
+                multimc_dir = path
+            else:
+                print("That path doesn't have an instances subdirectory, please try again")
+                continue
+            break
+    try:
+        with open('_swordfishpds_multimc_folder.txt', 'w') as f:
+            f.write(multimc_dir)
+    except:
+        pass
+    return multimc_dir
 
 def createMinecraftFolder(multimc_dir, instanceName, icon='default'):
     minecraft_dir = os.path.join(multimc_dir, 'instances', instanceName, '.minecraft')
