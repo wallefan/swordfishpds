@@ -509,6 +509,14 @@ def locate_multimc_dir():
             print('Found MultiMC directory at:', candidate)
             if prompt_yn('Is this correct?  (If unsure, answer yes).\nType Y or N:'):
                 multimc_dir = candidate
+                if not NO_COOKIE:
+                    try:
+                        with open('_swordfishpds_multimc_folder.txt', 'w') as f:
+                            f.write(multimc_dir)
+                    except:
+                        pass
+                return multimc_dir
+
             else:
                 # If the user answered "no", their install is probably in a nonstandard location.
                 # Don't bother checking the other standard ones.
