@@ -27,7 +27,7 @@ except (FileNotFoundError, http.cookiejar.LoadError):
 atexit.register(cookiejar.save)
 
 opener = urllib.request.build_opener()
-opener.add_handler(urllib.request.HTTPCookieProcessor(http.cookiejar.MozillaCookieJar('cookies.txt')))
+opener.add_handler(urllib.request.HTTPCookieProcessor(cookiejar))
 urllib.request.install_opener(opener)
 
 # This global variable becomes true when we are done prompting the user about things,
@@ -43,6 +43,7 @@ def extract_filename(resp, fallback=None):
     content_disposition = resp.headers.get('Content-Disposition')
     if content_disposition:
         for part in content_disposition.split(';'):
+            part = part.strip()
             if part.startswith('filename='):
                 return part[9:].strip('"')
                 break
@@ -99,13 +100,13 @@ def download(url, failed_downloads):
     return resp
 
 
-def _strip_dot_minecraft(filename):
+def sanitize_path(filename):
     if SERVER_MODE:
         if filename.startswith('.minecraft'):
             filename = filename[10:]
             if filename.startswith('/'):
                 filename = filename[1:]
-    return filename
+    return filename.replace('/', os.path.sep)
 
 class Downloader:
     def __init__(self, host, urlformat, tag=''):
@@ -150,12 +151,6 @@ class Downloader:
             if maybe_filename.endswith('.jar'):
                 # then it is definitely a filename
                 filename = maybe_filename
-                # since we haven't asked the server how long the file is yet, we don't know.
-                # we could see if the file exists locally and check that length, but the point of having this
-                # length field is resuming interrupted downloads.
-                # length = None means we have not checked.  length = -1 means we have checked and the server didn't
-                # answer us.
-                length = None
             else:
                 # we can't be absolutely certain that it's a filename.  Best to double check.
                 connection.request('HEAD', urlpath, headers={'User-Agent': 'SwordfishPDS-1.0'})
@@ -300,7 +295,7 @@ threading.Thread(target=print_thread, args=(printq,), daemon=True).start()
 ############ FILE FORMAT #########################
 ##################################################
 
-def run(f, outdir, created_modpack=True):
+def run(f, outdir, created_modpack=True, ignore_version_cookie=False):
     mod_downloader = Downloader('media.forgecdn.net', '/files/{0}/{1}/{2}', 'mods')
     mods_dir = os.path.join(outdir, 'mods') if SERVER_MODE else os.path.join(outdir, '.minecraft', 'mods')
     all_mods = []
@@ -308,23 +303,31 @@ def run(f, outdir, created_modpack=True):
     os.makedirs(mods_dir, exist_ok=True)
     zip_downloader = ZipDownloader()
     other_stuff_downloader = ArbitraryURLDownloader()
-    try:
-        with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as vfile:
-            version = vfile.read().strip()
-        print('read version', version, 'from file')
-        version, buildinfo = parse_version(version)
-    except Exception as e:
+    if ignore_version_cookie:
         version = (0, 0, 0)
         buildinfo = None
-        print('Could not load version from file!', e)
-    print(version, buildinfo)
+    else:
+        try:
+            with open(os.path.join(outdir, 'SwordfishPDS-PackVersion.txt')) as vfile:
+                version = vfile.read().strip()
+            print('read version', version, 'from file')
+            version, buildinfo = parse_version(version)
+        except Exception as e:
+            version = (0, 0, 0)
+            buildinfo = None
+            print('Could not load version from file!', e)
+        print(version, buildinfo)
+    # current_version = the version of the pack we have on disk at the start of the script.
+    # version starts out the same as current_version, but gets advanced every time we see a Version directive,
+    # and is what ultimately gets written to the cookie when the script hits EOF.
+    version_on_disk = version
     with f:
         # ugly (or beautiful depending on how you look at it) python 3 hack for comment characters
         for type, *arg in csv.reader(filter(lambda line: not line.startswith('#'), f)):
             if type == 'MOD':
                 mod_downloader.start(THREADS)
                 modid, filename = arg
-                all_mods.append(filename)
+                all_mods.append(urllib.parse.unquote(filename))
                 # if the mod exists, but is disabled, don't download it again
                 # as that both wastes time and confuses MultiMC.
                 mod_path = os.path.join(mods_dir, filename)
@@ -345,13 +348,12 @@ def run(f, outdir, created_modpack=True):
                 # Make each zip download its own thread for parallel extraction.
                 url, dest_dir, max_version = arg
                 max_version, max_buildinfo = parse_version(max_version)
-                dest_dir = _strip_dot_minecraft(dest_dir)
                 # If one or more downloads have already failed, fail fast and don't bother downloading the zip file,
                 # since we're not going to update the version number anyway.
                 if version < max_version and not zip_downloader.failed_downloads \
                         and not mod_downloader.failed_downloads and not other_stuff_downloader.failed_downloads:
                     zip_downloader.start(ZIP_THREADS)
-                    dest_dir = os.path.join(outdir, dest_dir.replace('/', os.path.sep))
+                    dest_dir = os.path.join(outdir, sanitize_path(dest_dir))
                     os.makedirs(dest_dir, exist_ok=True)
                     zip_downloader.put(url, dest_dir)
                 if version > max_version:
@@ -359,18 +361,20 @@ def run(f, outdir, created_modpack=True):
             elif type == 'Download':
                 url, filename = arg
                 other_stuff_downloader.start(THREADS)
-                filename = _strip_dot_minecraft(filename)
+                filename = sanitize_path(filename)
                 if os.path.exists(filename + '.disabled'):
                     os.rename(filename + '.disabled', filename)
                     # if the download got far enough to be disabled, assume it's good.
                     continue
-                other_stuff_downloader.put(url, os.path.join(outdir, filename.replace('/', os.path.sep)))
+                other_stuff_downloader.put(url, os.path.join(outdir, filename))
             elif type == 'Version':
                 new_version, = arg
                 version, buildinfo = parse_version(new_version)
+                # if version_on_disk >= version:
+                #    break
             elif type == 'Nuke':
                 filename, = arg
-                filename = os.path.join(outdir, _strip_dot_minecraft(filename))
+                filename = os.path.join(outdir, sanitize_path(filename))
                 if os.path.exists(filename):
                     if os.path.exists(filename + '.disabled'):
                         os.unlink(filename)
@@ -480,6 +484,7 @@ def locate_multimc_dir():
             os.environ['appdata'] +r'\MultiMC',
             os.environ['USERPROFILE'] +r'\Desktop\MultiMC',
             os.environ['USERPROFILE'] + r'\Downloads\MultiMC',
+            os.environ['USERPROFILE'] + r'\Downloads\mmc-stable-win32',
         ]
     elif plat=='Linux':
         candidates = [
@@ -698,3 +703,4 @@ if __name__=='__main__':
     if output_dir is None:
         output_dir = createMinecraftFolder(multimc_dir, pack_name)
     run(f, output_dir)
+    input('Press Enter to exit...')

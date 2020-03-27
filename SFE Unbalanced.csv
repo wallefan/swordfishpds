@@ -1,133 +1,167 @@
-MOD,2888880,journeymap-1.12.2-5.7.0.jar
-MOD,2849567,JustEnoughCalculation-1.12.2-3.2.3.jar
-MOD,2731963,Patchouli-1.0-20.jar
-MOD,2878931,LibVulpes-1.12.2-0.4.2-74-universal.jar
-MOD,2645992,Guide-API-1.12-2.1.8-63.jar
-MOD,2713386,Mantle-1.12-1.3.3.55.jar
-MOD,2715198,Numina-1.12.2-1.0.38.jar
-MOD,2887707,AdvancedRocketry-1.12.2-1.7.0-208-universal.jar
-MOD,2682821,Morph-1.12.2-7.1.3.jar
-MOD,2847112,jei_1.12.2-4.15.0.293.jar
-MOD,2745852,xnet-1.12-1.8.2.jar
-MOD,2634368,ocxnetdriver-1.0.3-b17.jar
-MOD,2708030,YNot-0.2.4.jar
-MOD,2743885,ModularPowersuits-1.12.2-1.0.46.jar
-MOD,2849905,advancedsolars-1.0.5.jar
-MOD,2799209,IC2Classic+1.12-1.5.4.5.jar
-MOD,2661985,ICBM-classic-1.12.2-3.3.0b63.jar
-MOD,2887047,buildcraft-all-7.99.24.5.jar
-MOD,2828357,OpenComputers-MC1.12.2-1.7.5.192.jar
-MOD,2645185,tinkersoc-0.6.jar
-MOD,2754959,openscreens-1.12.2-1.0.1.jar
-MOD,2842054,Commons0815-1.12.2-1.3.7.jar
-MOD,2824169,ocdevices-MC1.12.2-1.0.0-44.jar
-MOD,2832564,CTM-MC1.12.2-1.0.1.30.jar
-MOD,2745846,mcjtylib-1.12-3.5.4.jar
-MOD,2667280,theoneprobe-1.12-1.4.28.jar
-MOD,2623090,RedstoneFlux-1.12-2.1.0.6-universal.jar
-MOD,2861573,rftools-1.12-7.73.jar
-MOD,2705813,rftoolsctrl-1.12-2.0.2.jar
-MOD,2707390,rftoolsdim-1.12-5.71.jar
-MOD,2704404,rftoolspower-1.12-1.2.0.jar
-MOD,2714505,albedo-1.12.2-1.1.0.jar
-MOD,2777004,OpenLights-MC1.12.2-0.1.0.8.jar
-MOD,2720655,chiselsandbits-14.33.jar
-MOD,2315933,ChiselsBytes-1.9.4-0.4.jar
-MOD,2813538,Chisel-MC1.12.2-1.0.1.44.jar
-MOD,2859433,CustomMobSpawner-3.11.5.jar
-MOD,2785465,Forgelin-1.8.4.jar
-MOD,2761706,alib-1.0.12.jar
-MOD,2889940,alchemistry-1.12.2-41.jar
-MOD,2838090,CraftTweaker2-1.12-4.1.20.jar
-MOD,2626135,car-1.12.2-1.2.12.jar
-MOD,2661985,ICBM-classic-1.12.2-3.3.0b63.jar
-MOD,2777813,Decocraft-2.6.3_1.12.2.jar
-MOD,2789696,SimplyJetpacks2-1.12.2-2.2.14.67.jar
-MOD,2544919,immersivepetroleum-1.12.2-1.1.9.jar
-MOD,2882794,conarm-1.12.2-1.2.5.4.jar
-MOD,2815771,armoryexpansion-1.4.1.jar
-MOD,2853541,NuclearCraft-2.18o-1.12.2.jar
-MOD,2716799,notenoughrtgs-1.2a.jar
-MOD,2886605,ElectroblobsWizardry-4.2.9-MC1.12.2.jar
-MOD,2518667,Baubles-1.12-1.5.2.jar
-MOD,2612429,SeedsForWizardry+1.0+For+MC+Forge+1.12.2.jar
-MOD,2650308,realfilingcabinet-1.0.1.jar
-MOD,2705859,ComPatchedStorage-1.12.2-1.6.0.jar
-MOD,2899863,pneumaticcraft-repressurized-1.12.2-0.11.11-390.jar
-MOD,2857064,Controlling-3.0.8.jar
-MOD,2747935,ironchest-1.12.2-7.0.72.847.jar
-MOD,2822288,BloodMagic-1.12.2-2.4.3-105.jar
-MOD,2882804,Roots-1.12.2-3.0.25.jar
-MOD,2842510,BiomesOPlenty-1.12.2-7.0.1.2444-universal.jar
-MOD,2480458,Snad-1.12.1-1.7.09.16a.jar
-MOD,2492586,RoguelikeDungeons-1.12.2-1.8.0.jar
-MOD,2862651,CookingForBlockheads_1.12.2-6.5.0.jar
-MOD,2574880,BiblioCraft[v2.4.5][MC1.12.2].jar
-MOD,2836904,NomadicTents-1.12.2-9.5.2.jar
-MOD,2671230,NoMoreRecipeConflict-0.13(1.12.2).jar
-MOD,2764292,yoyos_1.12.2-1.3.3.25.jar
-MOD,2733014,moarboats-1.12.2-4.1.2.1.jar
-MOD,2856123,AdPoles-1.12.2-2.0.2.0-build.0435.jar
-MOD,2706762,astikorcarts-1.12.2-0.1.2.7.jar
-MOD,2553810,EnchantingTable-1.12-1.1.3.jar
-MOD,2537151,Vials-MC1.12-1.2.1.5.jar
-MOD,2568865,noRecipeBook_v1.2.2formc1.12.2.jar
-MOD,2679314,desirepaths-1.12.1-1.2.8.jar
-MOD,2834907,BetterDiving-1.12.2-1.4.14.jar
-MOD,2904183,BloodArsenal-1.12.2-2.2.2-31.jar
-MOD,2893716,tinkersdefense-1.4.2.33.jar
-MOD,2652196,Pewter-1.4.3.jar
-MOD,2531068,FenceOverhaul-1.3.4.jar
-MOD,2892340,SoundFilters-0.12_for_1.12.jar
-MOD,2676457,Ping-1.12.2-1.4.5.jar
-MOD,2902483,TConstruct-1.12.2-2.13.0.183.jar
-MOD,2801262,iChunUtil-1.12.2-7.2.2.jar
-MOD,2856114,ForgeEndertech-1.12.2-4.5.0.0-build.0435.jar
-MOD,2865502,mysticalworld-1.12.2-1.7.1.jar
-MOD,2865499,mysticallib-1.12.2-1.6.0.jar
-MOD,2799143,ImmersiveEngineering-0.12-92.jar
-MOD,2850338,logisticspipes-0.10.2.216.jar
-MOD,2902920,coroutil-1.12.1-1.2.37.jar
-MOD,2572444,CompactStorage-3.1-12.jar
-MOD,2685154,PTRLib-1.0.4.jar
-MOD,2779848,CodeChickenLib-1.12.2-3.2.3.358-universal.jar
-MOD,2715788,ThermalFoundation-1.12.2-2.6.3.27-universal.jar
-MOD,2715789,ThermalExpansion-1.12.2-5.5.4.43-universal.jar
-MOD,2716138,ThermalDynamics-1.12.2-2.5.5.21-universal.jar
-MOD,2715787,ThermalInnovation-1.12.2-0.3.3.12-universal.jar
-MOD,2880863,UniDict-1.12.2-2.9.6.jar
-MOD,2857869,CustomMainMenu-MC1.12.2-2.0.9.1.jar
-MOD,2887858,StorageDrawers-1.12.2-5.4.1.jar
-MOD,2664449,Morpheus-1.12.2-3.5.106.jar
-MOD,2560638,reauth-3.6.0.jar
-MOD,2838777,FastWorkbench-1.12.2-1.7.3.jar
-MOD,2671937,MouseTweaks-2.10-mc1.12.2.jar
-MOD,2872629,astralsorcery-1.12.2-1.10.22.jar
-Download,http://files.vexatos.com/Computronics/Computronics-1.12.2-1.6.6.jar,.minecraft/mods
-MOD,,Computronics-1.12.2-1.6.6.jar
-MOD,2841018,rustic-1.1.2.jar
-MOD,2749993,furniture-6.3.1-1.12.2.jar
-MOD,2563092,morebeautifulbuttons-1.12.2-1.7.3.20.jar
-MOD,2891572,FTBLib-5.4.7.0.jar
-MOD,2835289,FTBUtilities-5.4.0.124.jar
-MOD,2693578,alternatingflux-0.12.2-2.jar
-MOD,2904659,BuildingGadgets-2.8.2.jar
-MOD,,Flan's Mod-1.12.2-5.5.2.jar
-MOD,2518031,bdlib-1.14.3.12-mc1.12.2.jar
-MOD,2450900,Chameleon-1.12-4.1.3.jar
-MOD,2716100,CoFHCore-1.12.2-4.6.3.27-universal.jar
-MOD,2715784,CoFHWorld-1.12.2-1.3.1.7-universal.jar
-MOD,2477566,ResourceLoader-MC1.12.1-1.5.3.jar
-MOD,2807433,WanionLib-1.12.2-2.4.jar
-MOD,2433748,Ore+Tweaker-1.0.2-1.12.0.jar
-Download,https://drive.google.com/uc?export=download&id=1dHmi_5Hu97Uk7WLOnIi-biQEP-z8wWvT,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1ikKMpMfE2HCceIIdk1VaUbYEAq0q5ZqA,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1HmQ9Q3v9C_dsiAaUYUrRFCvZ8Dp4xHUC,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1mDCSVW6XGsO12BANy0xgwMRn-S--wtfo,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1tI2qISJYnCBIo3VdIughtGtNBFkyS22M,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1tI2qISJYnCBIo3VdIughtGtNBFkyS22M,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1GET6vWUjWyV7nzMtNF6oBqi83ZxLC79L,.minecraft/Flan
-Download,https://drive.google.com/uc?export=download&id=1AiGAcAU4sG6nhc969APB2LMRyyJlpnTQ,.minecraft/Flan
-Download,https://download1023.mediafire.com/vpj25qfrjpng/mc2p2b7s8z7o2fb/LPxPlayer%5C%27sCommunity-Weapon-Pack+V.1.7.zip,.minecraft/Flan
-Zipfile,https://github.com/lmpynix/swordfish-unbalanced/releases/download/1.0.x/swordfish-unbalanced_1.0.x.zip,.minecraft,1.0.x
-Version,1.0.0
+# SWORDFISH ENGINEERING
+# UNBALANCED PACK
+# BY LMPY                                                                                   ,WALLEFAN ET AL.
+# DON'T FORGET TO UPDATE THE VERSION NUMBER IF YOU MAKE ANY CHANGES!
+ICON                                                                                        ,
+MOD                                                                                         ,2888880                                                                                                ,journeymap-1.12.2-5.7.0.jar
+MOD                                                                                         ,2849567                                                                                                ,JustEnoughCalculation-1.12.2-3.2.3.jar
+MOD                                                                                         ,2731963                                                                                                ,Patchouli-1.0-20.jar
+MOD                                                                                         ,2878931                                                                                                ,LibVulpes-1.12.2-0.4.2-74-universal.jar
+MOD                                                                                         ,2645992                                                                                                ,Guide-API-1.12-2.1.8-63.jar
+MOD                                                                                         ,2713386                                                                                                ,Mantle-1.12-1.3.3.55.jar
+MOD                                                                                         ,2715198                                                                                                ,Numina-1.12.2-1.0.38.jar
+MOD                                                                                         ,2887707                                                                                                ,AdvancedRocketry-1.12.2-1.7.0-208-universal.jar
+MOD                                                                                         ,2682821                                                                                                ,Morph-1.12.2-7.1.3.jar
+MOD                                                                                         ,2847112                                                                                                ,jei_1.12.2-4.15.0.293.jar
+MOD                                                                                         ,2745852                                                                                                ,xnet-1.12-1.8.2.jar
+MOD                                                                                         ,2634368                                                                                                ,ocxnetdriver-1.0.3-b17.jar
+MOD                                                                                         ,2708030                                                                                                ,YNot-0.2.4.jar
+MOD                                                                                         ,2743885                                                                                                ,ModularPowersuits-1.12.2-1.0.46.jar
+MOD                                                                                         ,2849905                                                                                                ,advancedsolars-1.0.5.jar
+MOD                                                                                         ,2799209                                                                                                ,IC2Classic+1.12-1.5.4.5.jar
+MOD                                                                                         ,2661985                                                                                                ,ICBM-classic-1.12.2-3.3.0b63.jar
+MOD                                                                                         ,2887047                                                                                                ,buildcraft-all-7.99.24.5.jar
+MOD                                                                                         ,2828357                                                                                                ,OpenComputers-MC1.12.2-1.7.5.192.jar
+MOD                                                                                         ,2645185                                                                                                ,tinkersoc-0.6.jar
+MOD                                                                                         ,2754959                                                                                                ,openscreens-1.12.2-1.0.1.jar
+MOD                                                                                         ,2842054                                                                                                ,Commons0815-1.12.2-1.3.7.jar
+MOD                                                                                         ,2824169                                                                                                ,ocdevices-MC1.12.2-1.0.0-44.jar
+MOD                                                                                         ,2832564                                                                                                ,CTM-MC1.12.2-1.0.1.30.jar
+MOD                                                                                         ,2745846                                                                                                ,mcjtylib-1.12-3.5.4.jar
+MOD                                                                                         ,2667280                                                                                                ,theoneprobe-1.12-1.4.28.jar
+MOD                                                                                         ,2623090                                                                                                ,RedstoneFlux-1.12-2.1.0.6-universal.jar
+MOD                                                                                         ,2861573                                                                                                ,rftools-1.12-7.73.jar
+MOD                                                                                         ,2705813                                                                                                ,rftoolsctrl-1.12-2.0.2.jar
+MOD                                                                                         ,2707390                                                                                                ,rftoolsdim-1.12-5.71.jar
+MOD                                                                                         ,2704404                                                                                                ,rftoolspower-1.12-1.2.0.jar
+MOD                                                                                         ,2714505                                                                                                ,albedo-1.12.2-1.1.0.jar
+MOD                                                                                         ,2777004                                                                                                ,OpenLights-MC1.12.2-0.1.0.8.jar
+MOD                                                                                         ,2720655                                                                                                ,chiselsandbits-14.33.jar
+MOD                                                                                         ,2315933                                                                                                ,ChiselsBytes-1.9.4-0.4.jar
+MOD                                                                                         ,2813538                                                                                                ,Chisel-MC1.12.2-1.0.1.44.jar
+MOD                                                                                         ,2859433                                                                                                ,CustomMobSpawner-3.11.5.jar
+MOD                                                                                         ,2785465                                                                                                ,Forgelin-1.8.4.jar
+MOD                                                                                         ,2761706                                                                                                ,alib-1.0.12.jar
+MOD                                                                                         ,2889940                                                                                                ,alchemistry-1.12.2-41.jar
+MOD                                                                                         ,2838090                                                                                                ,CraftTweaker2-1.12-4.1.20.jar
+MOD                                                                                         ,2626135                                                                                                ,car-1.12.2-1.2.12.jar
+MOD                                                                                         ,2661985                                                                                                ,ICBM-classic-1.12.2-3.3.0b63.jar
+MOD                                                                                         ,2901775                                                                                                ,LagGoggles-FAT-1.12.2-4.11-92.jar
+MOD                                                                                         ,2789696                                                                                                ,SimplyJetpacks2-1.12.2-2.2.14.67.jar
+MOD                                                                                         ,2544919                                                                                                ,immersivepetroleum-1.12.2-1.1.9.jar
+MOD                                                                                         ,2882794                                                                                                ,conarm-1.12.2-1.2.5.4.jar
+MOD                                                                                         ,2815771                                                                                                ,armoryexpansion-1.4.1.jar
+MOD                                                                                         ,2853541                                                                                                ,NuclearCraft-2.18o-1.12.2.jar
+MOD                                                                                         ,2716799                                                                                                ,notenoughrtgs-1.2a.jar
+MOD                                                                                         ,2886605                                                                                                ,ElectroblobsWizardry-4.2.9-MC1.12.2.jar
+MOD                                                                                         ,2518667                                                                                                ,Baubles-1.12-1.5.2.jar
+MOD                                                                                         ,2612429                                                                                                ,SeedsForWizardry+1.0+For+MC+Forge+1.12.2.jar
+MOD                                                                                         ,2650308                                                                                                ,realfilingcabinet-1.0.1.jar
+MOD                                                                                         ,2705859                                                                                                ,ComPatchedStorage-1.12.2-1.6.0.jar
+MOD                                                                                         ,2899863                                                                                                ,pneumaticcraft-repressurized-1.12.2-0.11.11-390.jar
+MOD                                                                                         ,2857064                                                                                                ,Controlling-3.0.8.jar
+MOD                                                                                         ,2747935                                                                                                ,ironchest-1.12.2-7.0.72.847.jar
+MOD                                                                                         ,2822288                                                                                                ,BloodMagic-1.12.2-2.4.3-105.jar
+MOD                                                                                         ,2882804                                                                                                ,Roots-1.12.2-3.0.25.jar
+MOD                                                                                         ,2842510                                                                                                ,BiomesOPlenty-1.12.2-7.0.1.2444-universal.jar
+MOD                                                                                         ,2480458                                                                                                ,Snad-1.12.1-1.7.09.16a.jar
+MOD                                                                                         ,2492586                                                                                                ,RoguelikeDungeons-1.12.2-1.8.0.jar
+MOD                                                                                         ,2862651                                                                                                ,CookingForBlockheads_1.12.2-6.5.0.jar
+MOD                                                                                         ,2574880                                                                                                ,BiblioCraft[v2.4.5][MC1.12.2].jar
+MOD                                                                                         ,2836904                                                                                                ,NomadicTents-1.12.2-9.5.2.jar
+MOD                                                                                         ,2671230                                                                                                ,NoMoreRecipeConflict-0.13(1.12.2).jar
+MOD                                                                                         ,2764292                                                                                                ,yoyos_1.12.2-1.3.3.25.jar
+MOD                                                                                         ,2733014                                                                                                ,moarboats-1.12.2-4.1.2.1.jar
+MOD                                                                                         ,2856123                                                                                                ,AdPoles-1.12.2-2.0.2.0-build.0435.jar
+MOD                                                                                         ,2706762                                                                                                ,astikorcarts-1.12.2-0.1.2.7.jar
+MOD                                                                                         ,2553810                                                                                                ,EnchantingTable-1.12-1.1.3.jar
+MOD                                                                                         ,2537151                                                                                                ,Vials-MC1.12-1.2.1.5.jar
+MOD                                                                                         ,2568865                                                                                                ,noRecipeBook_v1.2.2formc1.12.2.jar
+MOD                                                                                         ,2679314                                                                                                ,desirepaths-1.12.1-1.2.8.jar
+MOD                                                                                         ,2904183                                                                                                ,BloodArsenal-1.12.2-2.2.2-31.jar
+MOD                                                                                         ,2893716                                                                                                ,tinkersdefense-1.4.2.33.jar
+MOD                                                                                         ,2652196                                                                                                ,Pewter-1.4.3.jar
+MOD                                                                                         ,2531068                                                                                                ,FenceOverhaul-1.3.4.jar
+MOD                                                                                         ,2892340                                                                                                ,SoundFilters-0.12_for_1.12.jar
+MOD                                                                                         ,2676457                                                                                                ,Ping-1.12.2-1.4.5.jar
+MOD                                                                                         ,2902483                                                                                                ,TConstruct-1.12.2-2.13.0.183.jar
+MOD                                                                                         ,2801262                                                                                                ,iChunUtil-1.12.2-7.2.2.jar
+MOD                                                                                         ,2856114                                                                                                ,ForgeEndertech-1.12.2-4.5.0.0-build.0435.jar
+MOD                                                                                         ,2865502                                                                                                ,mysticalworld-1.12.2-1.7.1.jar
+MOD                                                                                         ,2865499                                                                                                ,mysticallib-1.12.2-1.6.0.jar
+MOD                                                                                         ,2799143                                                                                                ,ImmersiveEngineering-0.12-92.jar
+MOD                                                                                         ,2850338                                                                                                ,logisticspipes-0.10.2.216.jar
+MOD                                                                                         ,2902920                                                                                                ,coroutil-1.12.1-1.2.37.jar
+MOD                                                                                         ,2572444                                                                                                ,CompactStorage-3.1-12.jar
+MOD                                                                                         ,2685154                                                                                                ,PTRLib-1.0.4.jar
+MOD                                                                                         ,2779848                                                                                                ,CodeChickenLib-1.12.2-3.2.3.358-universal.jar
+MOD                                                                                         ,2715788                                                                                                ,ThermalFoundation-1.12.2-2.6.3.27-universal.jar
+MOD                                                                                         ,2715789                                                                                                ,ThermalExpansion-1.12.2-5.5.4.43-universal.jar
+MOD                                                                                         ,2716138                                                                                                ,ThermalDynamics-1.12.2-2.5.5.21-universal.jar
+MOD                                                                                         ,2715787                                                                                                ,ThermalInnovation-1.12.2-0.3.3.12-universal.jar
+MOD                                                                                         ,2880863                                                                                                ,UniDict-1.12.2-2.9.6.jar
+MOD                                                                                         ,2857869                                                                                                ,CustomMainMenu-MC1.12.2-2.0.9.1.jar
+MOD                                                                                         ,2887858                                                                                                ,StorageDrawers-1.12.2-5.4.1.jar
+MOD                                                                                         ,2664449                                                                                                ,Morpheus-1.12.2-3.5.106.jar
+MOD                                                                                         ,2560638                                                                                                ,reauth-3.6.0.jar
+MOD                                                                                         ,2838777                                                                                                ,FastWorkbench-1.12.2-1.7.3.jar
+MOD                                                                                         ,2671937                                                                                                ,MouseTweaks-2.10-mc1.12.2.jar
+MOD                                                                                         ,2872629                                                                                                ,astralsorcery-1.12.2-1.10.22.jar
+Download                                                                                    ,http://files.vexatos.com/Computronics/Computronics-1.12.2-1.6.6.jar                                    ,.minecraft/mods
+MOD                                                                                         ,2841018                                                                                                ,rustic-1.1.2.jar
+MOD                                                                                         ,2749993                                                                                                ,furniture-6.3.1-1.12.2.jar
+MOD                                                                                         ,2563092                                                                                                ,morebeautifulbuttons-1.12.2-1.7.3.20.jar
+MOD                                                                                         ,2891572                                                                                                ,FTBLib-5.4.7.0.jar
+MOD                                                                                         ,2835289                                                                                                ,FTBUtilities-5.4.0.124.jar
+MOD                                                                                         ,2693578                                                                                                ,alternatingflux-0.12.2-2.jar
+MOD                                                                                         ,2904659                                                                                                ,BuildingGadgets-2.8.2.jar
+MOD                                                                                         ,2518031                                                                                                ,bdlib-1.14.3.12-mc1.12.2.jar
+MOD                                                                                         ,2450900                                                                                                ,Chameleon-1.12-4.1.3.jar
+MOD                                                                                         ,2716100                                                                                                ,CoFHCore-1.12.2-4.6.3.27-universal.jar
+MOD                                                                                         ,2715784                                                                                                ,CoFHWorld-1.12.2-1.3.1.7-universal.jar
+MOD                                                                                         ,2477566                                                                                                ,ResourceLoader-MC1.12.1-1.5.3.jar
+MOD                                                                                         ,2807433                                                                                                ,WanionLib-1.12.2-2.4.jar
+MOD                                                                                         ,2433748                                                                                                ,Ore+Tweaker-1.0.2-1.12.0.jar
+MOD                                                                                         ,2859433                                                                                                ,CustomMobSpawner-3.11.5.jar
+MOD                                                                                         ,2628698                                                                                                ,DrZharks MoCreatures Mod-12.0.5.jar
+MOD                                                                                         ,2847346                                                                                                ,effortlessbuilding-1.12.2-2.16.jar
+MOD                                                                                         ,2443194                                                                                                ,BetterBuildersWands-1.12-0.11.1.245%2B69d0d70.jar
+# Ignore the Github copies of Computronics and Flan
+MOD                                                                                         ,                                                                                                       ,Computronics-1.12.2-1.6.6.jar
+MOD                                                                                         ,                                                                                                       ,Flan's Mod-1.12.2-5.5.2.jar
+MOD                                                                                         ,2835175                                                                                                ,Mekanism-1.12.2-9.8.3.390.jar
+MOD                                                                                         ,2835177                                                                                                ,MekanismGenerators-1.12.2-9.8.3.390.jar
+# Insert optifine and make sure it's not clobbered
+Download                                                                                    ,http://optifine.net/adloadx?f=OptiFine_1.12.2_HpD_U_F5.jar&x=747b                                      ,.minecraft/mods/OptiFine_1.12.2_HD_U_F5.jar
+MOD                                                                                         ,                                                                                                       ,OptiFine_1.12.2_HD_U_F5.jar
+MOD                                                                                         ,2844115                                                                                                ,ActuallyAdditions-1.12.2-r151-2.jar
+MOD                                                                                         ,2465255                                                                                                ,actuallycomputers-2.1.0.jar
+MOD                                                                                         ,2604143                                                                                                ,ChiseledAdditions-1.0.0.jar
+MOD                                                                                         ,2459131                                                                                                ,ActuallyBaubles-1.12-1.1.jar
+MOD                                                                                         ,2711275                                                                                                ,StorageDrawersUnlimited-1.12.2-1.3.0.jar
+MOD                                                                                         ,2836918                                                                                                ,bettercaves-1.12.2-1.6.0.jar
+MOD                                                                                         ,2664750                                                                                                ,IndustrialWires-1.7-36.jar
+MOD                                                                                         ,2845037                                                                                                ,savemystronghold-1.12.2-1.0.0.jar
+MOD                                                                                         ,2880441                                                                                                ,CyclopsCore-1.12.2-1.6.1.jar
+MOD                                                                                         ,2718588                                                                                                ,ColossalChests-1.12.2-1.7.3.jar
+MOD                                                                                         ,2483393                                                                                                ,BetterFps-1.4.8.jar
+MOD                                                                                         ,2845668                                                                                                ,foamfix-0.10.10-1.12.2.jar
+MOD                                                                                         ,                                                                                                       ,BetterBuildersWands-1.12-0.11.1.245+69d0d70.jar
+MOD                                                                                         ,2750633                                                                                                ,architecturecraft-1.12-3.98.jar
+MOD                                                                                         ,2499846                                                                                                ,davincisvessels-1.12-6.340-full.jar
+MOD                                                                                         ,2485041                                                                                                ,movingworld-1.12-6.342-full.jar
+MOD                                                                                         ,2630081                                                                                                ,ExtraBitManipulation-1.12.2-3.4.1.jar
+MOD                                                                                         ,2728585                                                                                                ,JustEnoughResources-1.12.2-0.9.2.60.jar
+MOD                                                                                         ,2576706                                                                                                ,JEROreIntegration-1.12.2-1.1.0.jar
+MOD                                                                                         ,2701203                                                                                                ,tinkersjei-1.2.jar
+MOD                                                                                         ,2509046                                                                                                ,blockdrops-1.12.2-1.4.0.jar
+MOD                                                                                         ,2508393                                                                                                ,jeivillagers-1.12-1.0.2.jar
+MOD                                                                                         ,2745321                                                                                                ,industrialforegoing-1.12.2-1.12.13-237.jar
+MOD                                                                                         ,2904594                                                                                                ,IntegrationForegoing-1.12.2-1.10.jar
+MOD                                                                                         ,2891841                                                                                                ,tesla-core-lib-1.12.2-1.0.17.jar
+MOD                                                                                         ,2852431                                                                                                ,GunpowderLib-1.12.2-1.0.jar
+# BASE PACK: if you change this you MUST increment the version by at least 1 minor revision.
+Zipfile                                                                                     ,https://github.com/lmpynix/swordfish-unbalanced/releases/download/v1.2.x/swordfish-unbalanced_1.2.x.zip,.minecraft                                         ,1.2.x
+# Remove the modern warfare pack as it caused issues loading
+Nuke                                                                                        ,Modern Warfare-Content Pack-1.12.2-5.5.2.jar
+Version                                                                                     ,1.2.3
