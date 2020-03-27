@@ -17,18 +17,20 @@ import zipfile
 ZIP_THREADS = 5
 THREADS = 3
 SERVER_MODE = False  # set to True by __main__
+NO_COOKIE = False  # ditto
 
-cookiejar = http.cookiejar.MozillaCookieJar('cookies.txt')
-try:
-    cookiejar.load()
-except (FileNotFoundError, http.cookiejar.LoadError):
-    pass
 
-atexit.register(cookiejar.save)
+def init_cookies():
+    cookiejar = http.cookiejar.MozillaCookieJar('_swordfishpds_cookies.txt')
+    try:
+        cookiejar.load()
+    except (FileNotFoundError, http.cookiejar.LoadError):
+        pass
+    atexit.register(cookiejar.save)
 
-opener = urllib.request.build_opener()
-opener.add_handler(urllib.request.HTTPCookieProcessor(cookiejar))
-urllib.request.install_opener(opener)
+    opener = urllib.request.build_opener()
+    opener.add_handler(urllib.request.HTTPCookieProcessor(cookiejar))
+    urllib.request.install_opener(opener)
 
 # This global variable becomes true when we are done prompting the user about things,
 # and other threads are now free to start writing to stdout.
@@ -475,11 +477,12 @@ def prompt_yn(prompt):
 
 
 def locate_multimc_dir():
-    try:
-        with open('_swordfishpds_multimc_folder.txt') as f:
-            return f.read().strip()
-    except:
-        pass
+    if not NO_COOKIE:
+        try:
+            with open('_swordfishpds_multimc_folder.txt') as f:
+                return f.read().strip()
+        except:
+            pass
 
     import platform
     plat=platform.system()
@@ -560,11 +563,12 @@ def locate_multimc_dir():
                 print("That path doesn't have an instances subdirectory, please try again")
                 continue
             break
-    try:
-        with open('_swordfishpds_multimc_folder.txt', 'w') as f:
-            f.write(multimc_dir)
-    except:
-        pass
+    if not NO_COOKIE:
+        try:
+            with open('_swordfishpds_multimc_folder.txt', 'w') as f:
+                f.write(multimc_dir)
+        except:
+            pass
     return multimc_dir
 
 def createMinecraftFolder(multimc_dir, instanceName, icon='default'):
@@ -692,6 +696,8 @@ if __name__=='__main__':
     for arg in sys.argv[1:]:
         if arg == '--server-mode':
             SERVER_MODE = True
+        elif arg == '--no-cookies':
+            NO_COOKIE = True
         elif os.path.isdir(arg):
             output_dir = arg
         elif os.path.isfile(arg):
@@ -704,7 +710,8 @@ if __name__=='__main__':
                 connect_ip = arg
         else:
             print('Usage:')
-            print('SwordfishPDS.py [--server-mode] [{path to csv file|server_ip[:server_port]] [output_directory]')
+            print(
+                'SwordfishPDS.py [--server-mode] [--no-cookies] [{path to csv file|server_ip[:server_port]] [output_directory]')
             print('If no CSV file is provided, the script will connect to the specified server,')
             print('download a list of CSV files, and ask you to choose one.  If no server is')
             print('specified, the hardcoded default is 73.71.247.208 (the default server IP for')
@@ -712,7 +719,17 @@ if __name__=='__main__':
             print("--server-mode indicates that we're installing mods on the server rather than a client.")
             print('If specified, files will be placed directly in the destination directory rather than')
             print('destdir/.minecraft.')
+            print('By default, the script will create several cookies in the script directory in')
+            print('the form of .txt files: _swordfishpds_cookies.txt, which houses persistent')
+            print('browser cookies used for file downloads, and _swordfishpds_multimc_folder.txt,')
+            print('which stores the path to the MultiMC folder.  If --no-cookies is specified,')
+            print('these files will be neither read nor written, and no disk files outside the')
+            print('MultiMC folder will be touched.')
             exit()
+
+    if not NO_COOKIE:
+        init_cookies()
+
     # locate_multimc_dir() sometimes requires user intervention, so for the sake of seamlessness, skip it
     # if an output dir is specified.  Also do it before potentially connecting to the server.
     if output_dir is None:
@@ -727,4 +744,4 @@ if __name__=='__main__':
     if output_dir is None:
         output_dir = createMinecraftFolder(multimc_dir, pack_name)
     run(f, output_dir)
-    input('Press Enter to exit...')
+    input('Press Enter to close this window...')
