@@ -699,7 +699,7 @@ def ask_user(options, prompt='Choose an option: '):
 if __name__=='__main__':
     output_dir = None
     file = None
-    connect_ip = '73.71.247.208'
+    connect_ip = '98.37.182.117'
     connect_port = 21617
     for arg in sys.argv[1:]:
         if arg == '--server-mode':
